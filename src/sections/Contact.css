@@ -1,0 +1,30 @@
+.contact {
+  margin: 0;
+  padding: 4rem 1rem;
+  background: #f8f9fa;
+}
+.contact .container {
+  max-width: 1200px;
+  margin: auto;
+  text-align: center;
+  color: #495057;
+}
+
+.contact h2 {
+  margin-bottom: 1rem;
+}
+
+.contact-info a {
+  color: #0c0c0c;
+  text-decoration: none;
+}
+
+.contact-info a:hover {
+  text-decoration: underline;
+}
+
+.copyright {
+  margin-top: 2rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
