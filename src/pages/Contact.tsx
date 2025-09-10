@@ -72,7 +72,7 @@ const Contact: React.FC = () => {
                 {[
                   {
                     title: "Email",
-                    value: "website@naarni.com",
+                    value: "website@naarni.in",
                   },
                   {
                     title: "Office Location ",
