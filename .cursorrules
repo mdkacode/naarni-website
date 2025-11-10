@@ -1,0 +1,194 @@
+# Cursor Coding Guidelines for NaArni Website
+
+## Core Principles
+
+### 1. Modular Code
+- **Break down into small, reusable functions/components**
+- **One responsibility per function/component**
+- **Extract common logic into utility functions**
+- **Use custom hooks for shared stateful logic**
+
+### 2. Write Less Code (KISS - Keep It Simple, Stupid)
+- **Prefer concise, readable code over verbose explanations**
+- **Use built-in methods and modern JavaScript features**
+- **Avoid unnecessary abstractions**
+- **Don't over-engineer solutions**
+
+### 3. Functional Programming
+- **Prefer pure functions (same input = same output, no side effects)**
+- **Use `map`, `filter`, `reduce` instead of loops when appropriate**
+- **Avoid mutations - use immutable patterns**
+- **Use function composition over nested conditionals**
+- **Extract logic into small, composable functions**
+
+### 4. DRY (Don't Repeat Yourself)
+- **Extract duplicate code into reusable functions**
+- **Create shared utilities for common operations**
+- **Use constants for repeated values**
+- **Avoid copy-pasting code blocks**
+
+## Code Organization
+
+### File Structure
+```
+src/
+  ├── components/     # Reusable UI components
+  ├── pages/          # Page components
+  ├── hooks/          # Custom React hooks
+  ├── utils/          # Pure utility functions
+  ├── services/       # API calls and external services
+  └── types/          # TypeScript type definitions
+```
+
+### Component Guidelines
+- **Keep components small (< 200 lines when possible)**
+- **Extract sub-components when component grows**
+- **Use TypeScript interfaces for props**
+- **Prefer functional components with hooks**
+
+### Function Guidelines
+- **Functions should do ONE thing**
+- **Keep functions small (< 50 lines when possible)**
+- **Use descriptive names (verb + noun)**
+- **Extract complex logic into separate functions**
+
+## Best Practices
+
+### API Calls
+- **Create reusable API utility functions**
+- **Use consistent error handling**
+- **Extract API base URL to constants**
+- **Create typed response interfaces**
+
+Example:
+```typescript
+// utils/api.ts
+const API_BASE_URL = import.meta.env.DEV ? "/api/v1" : "https://api.internal.naarni.com/api/v1";
+
+export const fetchFleets = async (token: string, page: number) => {
+  const response = await fetch(`${API_BASE_URL}/fleets?page=${page}&limit=20`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!response.ok) throw new Error('Failed to fetch');
+  return response.json();
+};
+```
+
+### State Management
+- **Use local state when possible**
+- **Extract complex state logic into custom hooks**
+- **Prefer `useReducer` for complex state**
+- **Avoid prop drilling - use context if needed**
+
+### TypeScript
+- **Define interfaces for all data structures**
+- **Use type inference when types are obvious**
+- **Avoid `any` - use `unknown` if type is truly unknown**
+- **Create shared types in `types/` directory**
+
+### Styling
+- **Use Tailwind CSS utility classes**
+- **Extract repeated style patterns into constants**
+- **Use CSS variables for theme values**
+- **Keep inline styles minimal**
+
+### Error Handling
+- **Create reusable error handling utilities**
+- **Use consistent error message format**
+- **Handle errors at appropriate levels**
+- **Provide user-friendly error messages**
+
+## Code Examples
+
+### ✅ Good: Modular, Functional, DRY
+```typescript
+// utils/formatters.ts
+export const formatDate = (dateString?: string): string => {
+  if (!dateString) return "N/A";
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+// hooks/useFleets.ts
+export const useFleets = (token: string | null) => {
+  const [fleets, setFleets] = useState<Fleet[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    if (!token) return;
+    fetchFleets(token, 0).then(setFleets).finally(() => setLoading(false));
+  }, [token]);
+  
+  return { fleets, loading };
+};
+```
+
+### ❌ Bad: Duplicate, Non-modular
+```typescript
+// Don't repeat API calls in every component
+const Component1 = () => {
+  const [fleets, setFleets] = useState([]);
+  useEffect(() => {
+    fetch('https://api.../fleets', {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(r => r.json()).then(setFleets);
+  }, []);
+  // ...
+};
+
+const Component2 = () => {
+  const [fleets, setFleets] = useState([]);
+  useEffect(() => {
+    fetch('https://api.../fleets', {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(r => r.json()).then(setFleets);
+  }, []);
+  // ...
+};
+```
+
+## Refactoring Checklist
+
+Before writing new code:
+1. ✅ Check if similar functionality already exists
+2. ✅ Can this be extracted into a reusable function?
+3. ✅ Is this function doing too much? Can it be split?
+4. ✅ Are there any repeated patterns I can abstract?
+5. ✅ Can I use functional programming patterns here?
+6. ✅ Is this code readable without comments?
+
+## Common Patterns to Avoid
+
+### ❌ Avoid
+- Large monolithic components (> 300 lines)
+- Duplicate API call logic
+- Repeated utility functions
+- Mutating state directly
+- Nested ternary operators (use early returns)
+- Magic numbers/strings (use constants)
+
+### ✅ Prefer
+- Small, focused components
+- Shared API utilities
+- Reusable utility functions
+- Immutable state updates
+- Early returns and guard clauses
+- Named constants and enums
+
+## Code Review Focus
+
+When reviewing code, check:
+1. **Modularity**: Can this be broken down further?
+2. **Reusability**: Is there duplicate code elsewhere?
+3. **Functionality**: Does it use functional patterns?
+4. **Simplicity**: Can this be written more simply?
+5. **Type Safety**: Are types properly defined?
+
+## Remember
+
+> "The best code is code you don't have to write."
+> - Extract, reuse, and simplify.
+

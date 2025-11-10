@@ -1,12 +1,24 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { proxyGetWithBody } from './vite-plugin-proxy-get-body'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    proxyGetWithBody(),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://api.internal.naarni.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
+    },
+  },
   build: {
     rollupOptions: {
       output: {
