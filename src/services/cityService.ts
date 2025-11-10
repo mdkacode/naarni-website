@@ -1,5 +1,5 @@
 // City API Service
-import { API_BASE_URL, fetchWithAuth } from "../utils/api";
+import { fetchWithAuth } from "../utils/api";
 import type { City, CityCreateRequest, CityUpdateRequest, CityListResponse, CityResponse } from "../types/city";
 
 export const cityService = {

@@ -54,7 +54,7 @@ const EmptyState = () => (
 export const Users: React.FC = () => {
   const { token } = useAuth();
   const { users, loading, error, fetchUsers, createUser, updateUser } = useUsers(token);
-  const { organizations, loading: orgsLoading } = useOrganizations(token);
+  const { organizations } = useOrganizations(token);
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [formLoading, setFormLoading] = useState(false);

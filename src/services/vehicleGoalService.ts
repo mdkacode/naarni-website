@@ -1,5 +1,5 @@
 // Vehicle Goal API Service
-import { API_BASE_URL, fetchWithAuth } from "../utils/api";
+import { fetchWithAuth } from "../utils/api";
 import type { VehicleGoal, VehicleGoalCreateRequest, VehicleGoalListResponse } from "../types/vehicleGoal";
 
 export const vehicleGoalService = {

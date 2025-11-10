@@ -81,7 +81,10 @@ export interface UserUpdateRequest {
 }
 
 export interface UserListResponse {
-  body?: User[];
+  body?: User[] | {
+    content?: User[];
+    [key: string]: any;
+  };
   content?: User[];
   [key: string]: any;
 }

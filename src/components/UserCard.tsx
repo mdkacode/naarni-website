@@ -68,9 +68,9 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onEdit }) => {
         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
           <span className="text-gray-500 sm:w-24 font-medium">Verified:</span>
           <div className="flex gap-2 flex-wrap">
-            {isPhoneVerified && <Tag color="green" size="small">Phone</Tag>}
-            {isEmailVerified && <Tag color="green" size="small">Email</Tag>}
-            {!isPhoneVerified && !isEmailVerified && <Tag color="default" size="small">Not Verified</Tag>}
+            {isPhoneVerified && <Tag color="green">Phone</Tag>}
+            {isEmailVerified && <Tag color="green">Email</Tag>}
+            {!isPhoneVerified && !isEmailVerified && <Tag color="default">Not Verified</Tag>}
           </div>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">

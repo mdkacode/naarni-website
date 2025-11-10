@@ -7,7 +7,6 @@ import { useFleets } from "../hooks/useFleets";
 import { useRoutes } from "../hooks/useRoutes";
 import { useAuth } from "../hooks/useAuth";
 import { vehicleGoalService } from "../services/vehicleGoalService";
-import { formatDate } from "../utils/formatters";
 
 const { Option } = Select;
 

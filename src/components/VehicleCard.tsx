@@ -1,6 +1,6 @@
 // Vehicle Card Component (Mobile View)
 import React from "react";
-import { Button, Space } from "antd";
+import { Button } from "antd";
 import type { Vehicle } from "../types/vehicle";
 import { formatDate } from "../utils/formatters";
 

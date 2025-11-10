@@ -1,5 +1,5 @@
 // User API Service
-import { API_BASE_URL, fetchWithAuth } from "../utils/api";
+import { fetchWithAuth } from "../utils/api";
 import type { User, UserCreateRequest, UserUpdateRequest, UserListResponse } from "../types/user";
 
 export const userService = {
@@ -31,8 +31,8 @@ export const userService = {
   
   extractUserData: (response: UserListResponse): User[] => {
     // Handle nested structure: response.body.content
-    if (response.body?.content && Array.isArray(response.body.content)) {
-      return response.body.content.map(user => ({
+    if (response.body && typeof response.body === 'object' && 'content' in response.body && Array.isArray(response.body.content)) {
+      return response.body.content.map((user: any) => ({
         ...user,
         id: user.account?.uuid || user.id,
         uuid: user.account?.uuid,
@@ -50,14 +50,14 @@ export const userService = {
     }
     // Handle flat structure
     if (Array.isArray(response.body)) {
-      return response.body.map(user => ({
+      return response.body.map((user: any) => ({
         ...user,
         id: user.account?.uuid || user.id,
         uuid: user.account?.uuid,
       }));
     }
     if (Array.isArray(response.content)) {
-      return response.content.map(user => ({
+      return response.content.map((user: any) => ({
         ...user,
         id: user.account?.uuid || user.id,
         uuid: user.account?.uuid,

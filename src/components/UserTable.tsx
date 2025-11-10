@@ -11,17 +11,6 @@ interface UserTableProps {
   onEdit?: (user: User) => void;
 }
 
-const getGenderTag = (gender?: string) => {
-  const genderMap: Record<string, { color: string; text: string }> = {
-    MALE: { color: "blue", text: "Male" },
-    FEMALE: { color: "pink", text: "Female" },
-    OTHER: { color: "default", text: "Other" },
-  };
-  
-  const genderInfo = genderMap[gender || ""] || { color: "default", text: gender || "Unknown" };
-  return <Tag color={genderInfo.color}>{genderInfo.text}</Tag>;
-};
-
 const getVerificationTags = (user: User) => {
   const isPhoneVerified = user.account?.isPhoneVerified || user.isPhoneVerified;
   const isEmailVerified = user.account?.isEmailVerified || user.isEmailVerified;
@@ -104,13 +93,15 @@ const getUserColumns = (onEdit?: (user: User) => void): DataTableColumn<User>[] 
       return formatDate(createdAt);
     },
     sorter: (a, b) => {
-      const aTime = typeof (a.account?.createdAt || a.createdAt) === "number" 
-        ? (a.account?.createdAt || a.createdAt) 
-        : new Date(a.account?.createdAt || a.createdAt || 0).getTime();
-      const bTime = typeof (b.account?.createdAt || b.createdAt) === "number" 
-        ? (b.account?.createdAt || b.createdAt) 
-        : new Date(b.account?.createdAt || b.createdAt || 0).getTime();
-      return aTime - bTime;
+      const aCreatedAt = a.account?.createdAt || a.createdAt;
+      const bCreatedAt = b.account?.createdAt || b.createdAt;
+      const aTime = typeof aCreatedAt === "number" 
+        ? aCreatedAt 
+        : new Date(aCreatedAt || 0).getTime();
+      const bTime = typeof bCreatedAt === "number" 
+        ? bCreatedAt 
+        : new Date(bCreatedAt || 0).getTime();
+      return (aTime || 0) - (bTime || 0);
     },
   },
   {
@@ -132,7 +123,6 @@ export const UserTable: React.FC<UserTableProps> = ({ users, loading = false, on
         data={users}
         columns={getUserColumns(onEdit)}
         loading={loading}
-        scroll={false}
         rowKey={(record) => record.account?.uuid || record.uuid || record.id || ""}
         size="middle"
       />

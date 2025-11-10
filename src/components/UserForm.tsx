@@ -1,6 +1,6 @@
 // User Form Component using Ant Design
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, DatePicker, Button, Space, Row, Col, message, Alert } from "antd";
+import { Form, Input, Select, DatePicker, Button, Row, Col, message, Alert } from "antd";
 import type { User, UserCreateRequest, UserUpdateRequest } from "../types/user";
 import type { Organization } from "../types/organization";
 import dayjs from "dayjs";
