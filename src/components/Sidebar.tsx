@@ -1,5 +1,5 @@
 // Collapsible Sidebar Component
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface SidebarItem {

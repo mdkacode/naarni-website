@@ -31,7 +31,7 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onEdit }) => {
   const email = account.email || user.email;
   const orgId = account.organizationId || user.organizationId;
   const gender = profile.gender || user.gender;
-  const dob = profile.dateOfBirth || user.dateOfBirth;
+  // const dob = profile.dateOfBirth || user.dateOfBirth;
   const isPhoneVerified = account.isPhoneVerified || user.isPhoneVerified;
   const isEmailVerified = account.isEmailVerified || user.isEmailVerified;
   const createdAt = account.createdAt || user.createdAt;
