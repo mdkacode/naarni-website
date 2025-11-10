@@ -1,7 +1,6 @@
 // API Configuration and Utilities
-export const API_BASE_URL = import.meta.env.DEV 
-  ? "/api/v1" 
-  : "https://api.internal.naarni.com/api/v1";
+// Use proxy in both dev and production to avoid CORS issues
+export const API_BASE_URL = "/api/v1";
 
 export const getAuthHeaders = (token: string) => ({
   Authorization: `Bearer ${token}`,

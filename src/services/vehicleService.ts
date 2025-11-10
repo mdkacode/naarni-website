@@ -11,56 +11,29 @@ export const vehicleService = {
     
     const filterData = filterRequest || defaultFilter;
     
-    // In development: Send POST to Vite plugin which converts to GET with body
-    // In production: Need server-side proxy or backend to accept POST
-    if (import.meta.env.DEV) {
-      // Send POST to our proxy plugin, which converts to GET with body
-      try {
-        const response = await axios.post(
-          `${API_BASE_URL}/vehicles/filter`,
-          filterData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        return response.data;
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          throw new Error("UNAUTHORIZED");
+    // Send POST to proxy (Vite plugin in dev, Vercel function in production)
+    // Both convert POST to GET with body
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/vehicles/filter`,
+        filterData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-        throw new Error(
-          error.response?.data?.message || 
-          error.message || 
-          "Failed to fetch vehicles"
-        );
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error("UNAUTHORIZED");
       }
-    } else {
-      // Production: Try POST (backend should accept it, or need server-side proxy)
-      try {
-        const response = await axios.post(
-          `${API_BASE_URL}/vehicles/filter`,
-          filterData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        return response.data;
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          throw new Error("UNAUTHORIZED");
-        }
-        throw new Error(
-          error.response?.data?.message || 
-          error.message || 
-          "Failed to fetch vehicles. Backend may need to accept POST or provide server-side proxy."
-        );
-      }
+      throw new Error(
+        error.response?.data?.message || 
+        error.message || 
+        "Failed to fetch vehicles"
+      );
     }
   },
   
