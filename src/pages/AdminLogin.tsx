@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Use proxy in development, direct API in production
-const API_BASE_URL = import.meta.env.DEV 
-  ? "/api/v1" 
-  : "https://api.internal.naarni.com/api/v1";
+// Use proxy in both dev and production to avoid CORS issues
+const API_BASE_URL = "/api/v1";
 
 interface DeviceRegistrationData {
   deviceUuid: string;

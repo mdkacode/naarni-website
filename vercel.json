@@ -5,8 +5,8 @@
       "destination": "/api/vehicles/filter"
     },
     {
-      "source": "/api/:path*",
-      "destination": "https://api.internal.naarni.com/api/:path*"
+      "source": "/api/v1/:path*",
+      "destination": "https://api.internal.naarni.com/api/v1/:path*"
     },
     {
       "source": "/(.*)",

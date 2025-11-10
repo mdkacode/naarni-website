@@ -1,4 +1,4 @@
-// Vercel Serverless Function to handle GET request with body for vehicles/filter
+// Vercel Serverless Function to proxy all API requests
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import https from 'https';
 
@@ -11,30 +11,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  // Only allow POST (we'll convert to GET with body)
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
   try {
-    const body = JSON.stringify(req.body || {});
-    const authHeader = req.headers.authorization || '';
-    const deviceId = req.headers['x-device-id'] || '';
-    const platform = req.headers['x-platform'] || '';
+    // Extract the path from the query parameter or URL
+    const path = req.url?.replace('/api/proxy', '') || req.query.path as string || '';
+    const targetPath = path.startsWith('/') ? path : `/${path}`;
+    
+    // Get request body if present
+    let body: string | undefined;
+    if (req.method !== 'GET' && req.method !== 'HEAD' && req.body) {
+      body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    }
 
-    // Make GET request with body to the actual API
+    // Forward all headers
+    const headers: Record<string, string> = {
+      'Authorization': req.headers.authorization || '',
+      ...(req.headers['content-type'] && { 'Content-Type': req.headers['content-type'] as string }),
+      ...(req.headers['x-device-id'] && { 'x-device-id': req.headers['x-device-id'] as string }),
+      ...(req.headers['x-platform'] && { 'x-platform': req.headers['x-platform'] as string }),
+    };
+
+    if (body) {
+      headers['Content-Length'] = Buffer.byteLength(body).toString();
+    }
+
+    // Make request to the actual API
     const options = {
       hostname: 'api.internal.naarni.com',
       port: 443,
-      path: '/api/v1/vehicles/filter',
-      method: 'GET',
-      headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(body),
-        ...(deviceId && { 'x-device-id': deviceId as string }),
-        ...(platform && { 'x-platform': platform as string }),
-      },
+      path: `/api/v1${targetPath}`,
+      method: req.method || 'GET',
+      headers,
     };
 
     return new Promise<void>((resolve, reject) => {
@@ -43,7 +49,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-device-id, x-platform');
-        res.setHeader('Content-Type', 'application/json');
+        
+        // Forward response headers
+        Object.keys(proxyRes.headers).forEach((key) => {
+          const value = proxyRes.headers[key];
+          if (value && !['content-encoding', 'transfer-encoding'].includes(key.toLowerCase())) {
+            res.setHeader(key, value);
+          }
+        });
+        
         res.statusCode = proxyRes.statusCode || 200;
 
         // Forward response body
@@ -69,8 +83,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         reject(error);
       });
 
-      // Write body to GET request
-      proxyReq.write(body);
+      // Write body if present
+      if (body) {
+        proxyReq.write(body);
+      }
       proxyReq.end();
     });
   } catch (error: any) {

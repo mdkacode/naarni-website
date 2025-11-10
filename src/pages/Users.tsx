@@ -102,6 +102,7 @@ export const Users: React.FC = () => {
               account: {
                 isPhoneVerified: true,
                 isEmailVerified: true,
+                userStatus: "ACTIVE",
               },
             } as UserUpdateRequest);
           } catch (verifyError: any) {

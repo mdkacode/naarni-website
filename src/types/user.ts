@@ -71,6 +71,9 @@ export interface UserUpdateRequest {
     organizationId?: number;
     isPhoneVerified?: boolean;
     isEmailVerified?: boolean;
+    firstName?: string;
+    lastName?: string;
+    userStatus?: string;
   };
   profile?: {
     firstName?: string;
