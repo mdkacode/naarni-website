@@ -93,7 +93,7 @@ const getDeviceColumns = (onDelete?: (device: VehicleDevice) => void): DataTable
           <Button
             type="primary"
             danger
-            size="large"
+            size="small"
             icon={<DeleteOutlined />}
             onClick={(e) => handleDelete(record, e)}
           >
