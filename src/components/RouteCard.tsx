@@ -1,78 +1,74 @@
 // Route Card Component (Mobile View)
-import React from "react";
-import { Button, Tag } from "antd";
+import React, { useEffect, useMemo } from "react";
+import { Button } from "antd";
 import type { Route } from "../types/route";
 import { formatDate } from "../utils/formatters";
+import { useCities } from "../hooks/useCities";
+import { useAuth } from "../hooks/useAuth";
 
 interface RouteCardProps {
   route: Route;
   onEdit?: (route: Route) => void;
 }
 
-const getRouteTypeTag = (routeType?: string) => {
-  if (routeType === "TO_FRO") {
-    return <Tag color="blue">To & Fro</Tag>;
-  }
-  if (routeType === "ONE_WAY") {
-    return <Tag color="green">One Way</Tag>;
-  }
-  return <Tag>{routeType || "N/A"}</Tag>;
-};
-
 export const RouteCard: React.FC<RouteCardProps> = ({
   route,
   onEdit,
-}) => (
-  <div className="p-4 hover:bg-gray-50 transition-colors">
-    <div className="flex justify-between items-start mb-2">
-      <div>
+}) => {
+  const { token } = useAuth();
+  const { cities, fetchCities } = useCities(token);
+
+  // Fetch cities on mount
+  useEffect(() => {
+    if (token) {
+      fetchCities(0, 1000);
+    }
+  }, [token, fetchCities]);
+
+  // Create a map of city ID to city name for quick lookup
+  const cityMap = useMemo(() => {
+    const map = new Map<number, string>();
+    cities.forEach((city) => {
+      if (city.id && city.name) {
+        map.set(city.id, city.name);
+      }
+    });
+    return map;
+  }, [cities]);
+
+  // Helper function to get route display name
+  const getRouteDisplayName = (route: Route): string => {
+    const startCityName = route.startCityName || cityMap.get(route.startCityId || 0) || "N/A";
+    const endCityName = route.endCityName || cityMap.get(route.endCityId || 0) || "N/A";
+    return `${startCityName} to ${endCityName}`;
+  };
+
+  return (
+    <div className="p-4 hover:bg-gray-50 transition-colors">
+      <div className="mb-2">
         <h3 className="text-lg font-semibold text-gray-900">
-          {route.name || `Route #${route.id || "N/A"}`}
+          {getRouteDisplayName(route)}
         </h3>
-        <p className="text-sm text-gray-500">
-          {route.description || "No description"}
-        </p>
       </div>
-      {getRouteTypeTag(route.routeType)}
+      <div className="mt-3 text-sm">
+        <div>
+          <p className="text-gray-500">Created At</p>
+          <p className="text-gray-900 font-medium">{formatDate(route.createdAt)}</p>
+        </div>
+      </div>
+      {onEdit && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <Button
+            type="primary"
+            size="small"
+            onClick={() => onEdit(route)}
+            block
+          >
+            Edit Route
+          </Button>
+        </div>
+      )}
     </div>
-    <div className="grid grid-cols-2 gap-2 mt-3 text-sm">
-      <div>
-        <p className="text-gray-500">Start City</p>
-        <p className="text-gray-900 font-medium">
-          {route.startCityName || "N/A"} {route.startCityId ? `(ID: ${route.startCityId})` : ""}
-        </p>
-      </div>
-      <div>
-        <p className="text-gray-500">End City</p>
-        <p className="text-gray-900 font-medium">
-          {route.endCityName || "N/A"} {route.endCityId ? `(ID: ${route.endCityId})` : ""}
-        </p>
-      </div>
-      <div>
-        <p className="text-gray-500">Distance</p>
-        <p className="text-gray-900 font-medium">{route.distance ? `${route.distance} km` : "N/A"}</p>
-      </div>
-      <div>
-        <p className="text-gray-500">Duration</p>
-        <p className="text-gray-900 font-medium">{route.estimatedDuration ? `${route.estimatedDuration} min` : "N/A"}</p>
-      </div>
-      <div>
-        <p className="text-gray-500">Created At</p>
-        <p className="text-gray-900 font-medium">{formatDate(route.createdAt)}</p>
-      </div>
-    </div>
-    {onEdit && (
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <Button
-          type="primary"
-          size="small"
-          onClick={() => onEdit(route)}
-          block
-        >
-          Edit Route
-        </Button>
-      </div>
-    )}
-  </div>
-);
+  );
+};
 

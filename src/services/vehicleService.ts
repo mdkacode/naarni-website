@@ -52,6 +52,15 @@ export const vehicleService = {
     });
     return response.body || response;
   },
+
+  deleteVehicle: async (token: string, vehicleId: number): Promise<void> => {
+    console.log("vehicleService.deleteVehicle called with ID:", vehicleId);
+    const result = await fetchWithAuth(`/vehicles/${vehicleId}`, token, {
+      method: "DELETE",
+    });
+    console.log("Delete API call completed, result:", result);
+    return result;
+  },
   
   associateFleet: async (token: string, vehicleId: number, fleetId: number): Promise<void> => {
     await fetchWithAuth<any>(`/vehicles/${vehicleId}/associate-fleet/${fleetId}`, token, {
@@ -77,6 +86,26 @@ export const vehicleService = {
 
   disassociateRoute: async (token: string, vehicleId: number, routeId: number, reason?: string): Promise<void> => {
     let url = `/vehicles/disassociate-route?vehicleId=${vehicleId}&routeId=${routeId}`;
+    if (reason) {
+      url += `&reason=${encodeURIComponent(reason)}`;
+    }
+    await fetchWithAuth<any>(url, token, {
+      method: "POST",
+    });
+  },
+
+  associateDevice: async (token: string, vehicleId: number, deviceId: number, installedBy: string): Promise<void> => {
+    const url = `/vehicles/associate-device?deviceId=${deviceId}&vehicleId=${vehicleId}&installedBy=${encodeURIComponent(installedBy)}`;
+    await fetchWithAuth<any>(url, token, {
+      method: "POST",
+    });
+  },
+
+  disassociateDevice: async (token: string, vehicleId: number, deviceId: number, uninstalledBy?: string, reason?: string): Promise<void> => {
+    let url = `/vehicles/disassociate-device?deviceId=${deviceId}&vehicleId=${vehicleId}`;
+    if (uninstalledBy) {
+      url += `&uninstalledBy=${encodeURIComponent(uninstalledBy)}`;
+    }
     if (reason) {
       url += `&reason=${encodeURIComponent(reason)}`;
     }

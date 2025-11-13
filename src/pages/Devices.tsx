@@ -7,7 +7,7 @@ import { DeviceList } from "../components/DeviceList";
 import { DeviceForm } from "../components/DeviceForm";
 import { StatsCard } from "../components/StatsCard";
 import { Pagination } from "../components/Pagination";
-import type { DeviceCreateRequest } from "../types/device";
+import type { DeviceCreateRequest, VehicleDevice } from "../types/device";
 
 const STATS_ICONS = {
   devices: (
@@ -62,7 +62,7 @@ const EmptyState = () => (
 
 const Devices: React.FC = () => {
   const { token, logout } = useAuth();
-  const { devices, loading, error, currentPage, totalPages, totalElements, fetchDevices, createDevice } = useDevices(token);
+  const { devices, loading, error, currentPage, totalPages, totalElements, fetchDevices, createDevice, deleteDevice } = useDevices(token);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -95,6 +95,17 @@ const Devices: React.FC = () => {
       throw err;
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const handleDelete = async (device: VehicleDevice) => {
+    if (!device.id) return;
+    
+    try {
+      await deleteDevice(device.id);
+      message.success(`Device ${device.deviceId || device.id} deleted successfully`);
+    } catch (err: any) {
+      message.error(err?.message || "Failed to delete device");
     }
   };
 
@@ -198,7 +209,7 @@ const Devices: React.FC = () => {
               <EmptyState />
             ) : (
               <>
-                <DeviceList devices={devices} loading={loading} />
+                <DeviceList devices={devices} loading={loading} onDelete={handleDelete} />
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}

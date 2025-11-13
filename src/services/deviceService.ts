@@ -1,4 +1,4 @@
-// Device API Service
+
 import { fetchWithAuth } from "../utils/api";
 import type { DeviceListResponse, DeviceCreateRequest, VehicleDevice } from "../types/device";
 
@@ -13,6 +13,12 @@ export const deviceService = {
       body: JSON.stringify(data),
     });
     return response.body || response;
+  },
+
+  deleteDevice: async (token: string, id: number): Promise<any> => {
+    return fetchWithAuth<any>(`/vehicle-devices/${id}`, token, {
+      method: "DELETE",
+    });
   },
   
   extractDeviceData: (response: DeviceListResponse) => ({

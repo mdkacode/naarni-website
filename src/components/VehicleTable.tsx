@@ -1,6 +1,7 @@
 // Vehicle Table Component using Ant Design
 import React from "react";
-import { Tag, Button } from "antd";
+import { Button, Space, Modal } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import type { Vehicle } from "../types/vehicle";
 import { formatDate } from "../utils/formatters";
 import { DataTable, type DataTableColumn } from "./DataTable";
@@ -9,22 +10,12 @@ interface VehicleTableProps {
   vehicles: Vehicle[];
   loading?: boolean;
   onViewDetails?: (vehicle: Vehicle) => void;
+  onDelete?: (vehicle: Vehicle) => void;
 }
 
-const getStatusTag = (status?: string) => {
-  const statusMap: Record<string, { color: string; text: string }> = {
-    MOVING: { color: "green", text: "Moving" },
-    NOT_MOVING: { color: "orange", text: "Not Moving" },
-    MAINTENANCE: { color: "red", text: "Maintenance" },
-    INACTIVE: { color: "default", text: "Inactive" },
-  };
-  
-  const statusInfo = statusMap[status || ""] || { color: "default", text: status?.replace("_", " ") || "Unknown" };
-  return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>;
-};
-
 const getVehicleColumns = (
-  onViewDetails?: (vehicle: Vehicle) => void
+  onViewDetails?: (vehicle: Vehicle) => void,
+  onDelete?: (vehicle: Vehicle) => void
 ): DataTableColumn<Vehicle>[] => [
   {
     key: "id",
@@ -44,26 +35,7 @@ const getVehicleColumns = (
     title: "Make/Model",
     render: (_, record) => `${record.make || "N/A"} ${record.model || ""}`.trim(),
   },
-  {
-    key: "year",
-    title: "Year",
-    dataIndex: "year",
-    render: (value) => value || "N/A",
-    sorter: (a, b) => (a.year || 0) - (b.year || 0),
-  },
-  {
-    key: "vehicleType",
-    title: "Type",
-    dataIndex: "vehicleType",
-    render: (value) => value || "N/A",
-  },
-  {
-    key: "capacity",
-    title: "Capacity",
-    dataIndex: "capacity",
-    render: (value) => value || "N/A",
-    sorter: (a, b) => (a.capacity || 0) - (b.capacity || 0),
-  },
+  
   {
     key: "fleetId",
     title: "Fleet",
@@ -76,19 +48,6 @@ const getVehicleColumns = (
       // Fallback to fleetId if name not available
       return value ? `Fleet ID: ${value}` : "N/A";
     },
-  },
-  {
-    key: "status",
-    title: "Status",
-    dataIndex: "status",
-    render: (status) => getStatusTag(status),
-    filters: [
-      { text: "Moving", value: "MOVING" },
-      { text: "Not Moving", value: "NOT_MOVING" },
-      { text: "Maintenance", value: "MAINTENANCE" },
-      { text: "Inactive", value: "INACTIVE" },
-    ],
-    onFilter: (value, record) => record.status === value,
   },
   {
     key: "createdAt",
@@ -104,16 +63,50 @@ const getVehicleColumns = (
   {
     key: "actions",
     title: "Actions",
-    render: (_, record) => (
-      <Button
-        type="link"
-        size="small"
-        onClick={() => onViewDetails?.(record)}
-      >
-        View Details
-      </Button>
-    ),
-    width: 120,
+    render: (_, record) => {
+      const handleDelete = (e: React.MouseEvent) => {
+        // alert("Delete button clicked for vehicle:", record.id);
+        console.log("Delete button clicked for vehicle:", record.id);
+        e.stopPropagation();
+        e.preventDefault();
+        if (!onDelete) {
+          console.error("onDelete callback is not provided");
+          return;
+        }
+        console.log("onDelete callback exists, showing confirmation modal");
+        onDelete(record);
+      };
+
+      return (
+        <Space size="small">
+          <Button
+            type="primary"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onViewDetails?.(record);
+            }}
+          >
+            View Details
+          </Button>
+          <Button
+            type="primary"
+            danger
+            size="small"
+            onClick={handleDelete}
+          >
+            Delete
+          </Button>
+        </Space>
+      );
+    },
+    onCell: () => ({
+      onClick: (e: React.MouseEvent) => {
+        e.stopPropagation();
+      },
+    }),
+    width: 200,
   },
 ];
 
@@ -121,12 +114,13 @@ export const VehicleTable: React.FC<VehicleTableProps> = ({
   vehicles,
   loading = false,
   onViewDetails,
+  onDelete,
 }) => {
   return (
     <div className="hidden md:block">
       <DataTable<Vehicle>
         data={vehicles}
-        columns={getVehicleColumns(onViewDetails)}
+        columns={getVehicleColumns(onViewDetails, onDelete)}
         loading={loading}
         scroll={{ x: "max-content" }}
         rowKey="id"

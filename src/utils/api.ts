@@ -38,6 +38,18 @@ export const fetchWithAuth = async <T>(
     await handleApiError(response);
   }
 
+  // For DELETE requests or empty responses, return empty object or void
+  const contentType = response.headers.get("content-type");
+  if (options.method === "DELETE" || !contentType?.includes("application/json")) {
+    // Try to parse JSON, but if it fails (empty body), return empty object
+    try {
+      const text = await response.text();
+      return text ? JSON.parse(text) : ({} as T);
+    } catch {
+      return {} as T;
+    }
+  }
+
   return response.json();
 };
 

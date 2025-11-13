@@ -8,18 +8,21 @@ interface VehicleListProps {
   vehicles: Vehicle[];
   loading?: boolean;
   onViewDetails?: (vehicle: Vehicle) => void;
+  onDelete?: (vehicle: Vehicle) => void;
 }
 
 export const VehicleList: React.FC<VehicleListProps> = ({
   vehicles,
   loading = false,
   onViewDetails,
+  onDelete,
 }) => (
   <>
     <VehicleTable
       vehicles={vehicles}
       loading={loading}
       onViewDetails={onViewDetails}
+      onDelete={onDelete}
     />
     <div className="md:hidden divide-y divide-gray-200">
       {vehicles.map(vehicle => (

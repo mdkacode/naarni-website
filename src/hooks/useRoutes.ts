@@ -63,6 +63,23 @@ export const useRoutes = (token: string | null) => {
     }
   }, [token, fetchRoutes]);
 
+  const deleteRoute = useCallback(async (routeId: number): Promise<void> => {
+    if (!token) throw new Error("No token available");
+    
+    setLoading(true);
+    setError(null);
+    try {
+      await routeService.deleteRoute(token, routeId);
+      await fetchRoutes(); // Refresh list
+    } catch (err: any) {
+      const errorMessage = err?.errorMessage || err?.response?.data?.errorMessage || err?.message || "Failed to delete route";
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [token, fetchRoutes]);
+
   useEffect(() => {
     fetchRoutes();
   }, [fetchRoutes]);
@@ -74,6 +91,7 @@ export const useRoutes = (token: string | null) => {
     fetchRoutes,
     createRoute,
     updateRoute,
+    deleteRoute,
   };
 };
 

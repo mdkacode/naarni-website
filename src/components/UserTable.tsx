@@ -44,14 +44,6 @@ const getUserColumns = (onEdit?: (user: User) => void): DataTableColumn<User>[] 
     },
   },
   {
-    key: "email",
-    title: "Email",
-    render: (_, record) => {
-      const email = record.account?.email || record.email;
-      return email || "N/A";
-    },
-  },
-  {
     key: "organization",
     title: "Organization",
     render: (_, record) => {

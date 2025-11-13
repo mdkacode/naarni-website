@@ -105,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-[#1E40AF]">Admin Panel</h2>
+            <h2 className="text-xl font-bold text-[#1E40AF]">NaArNi</h2>
             <button
               onClick={onToggle}
               className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"

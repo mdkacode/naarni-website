@@ -55,12 +55,20 @@ export const UserForm: React.FC<UserFormProps> = ({
     setErrorMessage(null);
     
     try {
+      // Ensure phone number has +91 prefix
+      let phoneNumber = values.phone?.trim() || "";
+      if (phoneNumber && !phoneNumber.startsWith("+91")) {
+        // Remove any existing + or country code and add +91
+        phoneNumber = phoneNumber.replace(/^\+?91\s*/, "").replace(/^\+/, "");
+        phoneNumber = `+91${phoneNumber}`;
+      }
+      
       if (user) {
         // When editing, only send account fields (dateOfBirth and gender are not included)
         const formData = {
           account: {
-            phone: values.phone,
-            email: values.email,
+            phone: phoneNumber,
+            email: values.email || undefined,
             organizationId: values.organizationId,
             firstName: values.firstName,
             lastName: values.lastName,
@@ -74,8 +82,8 @@ export const UserForm: React.FC<UserFormProps> = ({
         // When creating, send all fields in account object (dateOfBirth and gender are optional)
         const formData = {
           account: {
-            phone: values.phone,
-            email: values.email,
+            phone: phoneNumber,
+            email: values.email || undefined,
             firstName: values.firstName,
             lastName: values.lastName,
             dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format("YYYY-MM-DD") : undefined,
@@ -149,22 +157,15 @@ export const UserForm: React.FC<UserFormProps> = ({
               { pattern: /^\+?[1-9]\d{1,14}$/, message: "Please enter a valid phone number" },
             ]}
           >
-            <Input placeholder="+919876543210" size="large" />
+            <Input 
+              addonBefore="+91" 
+             
+              placeholder="9876543210" 
+              size="large" 
+            />
           </Form.Item>
         </Col>
 
-        <Col xs={24} sm={24} md={12}>
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Please enter email" },
-              { type: "email", message: "Please enter a valid email" },
-            ]}
-          >
-            <Input type="email" placeholder="user@example.com" size="large" />
-          </Form.Item>
-        </Col>
       </Row>
 
       <Row gutter={[16, 0]}>
@@ -185,6 +186,20 @@ export const UserForm: React.FC<UserFormProps> = ({
             rules={[{ required: true, message: "Please enter last name" }]}
           >
             <Input placeholder="Doe" size="large" />
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <Row gutter={[16, 0]}>
+        <Col xs={24} sm={24} md={12}>
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { type: "email", message: "Please enter a valid email" },
+            ]}
+          >
+            <Input type="email" placeholder="user@example.com (optional)" size="large" />
           </Form.Item>
         </Col>
       </Row>

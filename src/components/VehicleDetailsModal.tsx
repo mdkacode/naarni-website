@@ -1,12 +1,15 @@
 // Vehicle Details Modal Component
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Modal, Tabs, Button, Space, Form, Select, InputNumber, Input, message, Table, Tag, Divider } from "antd";
 import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import type { Vehicle, VehicleFilterRequest } from "../types/vehicle";
 import type { VehicleGoal, VehicleGoalCreateRequest } from "../types/vehicleGoal";
+import type { Route } from "../types/route";
 import { useFleets } from "../hooks/useFleets";
 import { useRoutes } from "../hooks/useRoutes";
+import { useDevices } from "../hooks/useDevices";
+import { useCities } from "../hooks/useCities";
 import { useAuth } from "../hooks/useAuth";
 import { vehicleGoalService } from "../services/vehicleGoalService";
 import { vehicleService } from "../services/vehicleService";
@@ -18,13 +21,6 @@ const MAKE_MODEL_OPTIONS = [
   { value: "12.5 CM", label: "12.5 CM" },
 ];
 
-const STATUS_OPTIONS = [
-  { value: "PLUGGED_IN", label: "Plugged In" },
-  { value: "UNPLUGGED", label: "Unplugged" },
-  { value: "MAINTENANCE", label: "Maintenance" },
-  { value: "INACTIVE", label: "Inactive" },
-];
-
 interface VehicleDetailsModalProps {
   visible: boolean;
   vehicle: Vehicle | null;
@@ -34,6 +30,8 @@ interface VehicleDetailsModalProps {
   onDisassociate: (vehicleId: number) => Promise<void>;
   onAssociateRoute?: (vehicleId: number, routeId: number, notes?: string) => Promise<void>;
   onDisassociateRoute?: (vehicleId: number, routeId: number, reason?: string) => Promise<void>;
+  onAssociateDevice?: (vehicleId: number, deviceId: number, installedBy: string) => Promise<void>;
+  onDisassociateDevice?: (vehicleId: number, deviceId: number, uninstalledBy?: string, reason?: string) => Promise<void>;
 }
 
 const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
@@ -47,15 +45,21 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
   onDisassociate,
   onAssociateRoute,
   onDisassociateRoute,
+  onAssociateDevice,
+  onDisassociateDevice,
 }) => {
   const { token } = useAuth();
   const { fleets, loading: fleetsLoading } = useFleets(token);
   const { routes, loading: routesLoading } = useRoutes(token);
+  const { devices, loading: devicesLoading } = useDevices(token);
+  const { cities, fetchCities } = useCities(token);
   const [form] = Form.useForm();
   const [vehicleForm] = Form.useForm();
   const [goalForm] = Form.useForm();
   const [routeForm] = Form.useForm();
   const [disassociateRouteForm] = Form.useForm();
+  const [associateDeviceForm] = Form.useForm();
+  const [disassociateDeviceForm] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [goals, setGoals] = useState<VehicleGoal[]>([]);
   const [goalsLoading, setGoalsLoading] = useState(false);
@@ -65,6 +69,31 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
   const [filteredDataLoading, setFilteredDataLoading] = useState(false);
   const [enrichedVehicle, setEnrichedVehicle] = useState<Vehicle | null>(null);
 
+  // Fetch cities on mount
+  useEffect(() => {
+    if (token) {
+      fetchCities(0, 1000);
+    }
+  }, [token, fetchCities]);
+
+  // Create a map of city ID to city name for quick lookup
+  const cityMap = useMemo(() => {
+    const map = new Map<number, string>();
+    cities.forEach((city) => {
+      if (city.id && city.name) {
+        map.set(city.id, city.name);
+      }
+    });
+    return map;
+  }, [cities]);
+
+  // Helper function to get route display name
+  const getRouteDisplayName = (route: Route): string => {
+    const startCityName = route.startCityName || cityMap.get(route.startCityId || 0) || "N/A";
+    const endCityName = route.endCityName || cityMap.get(route.endCityId || 0) || "N/A";
+    return `${startCityName} to ${endCityName}`;
+  };
+
   useEffect(() => {
     if (visible && vehicle?.id) {
       fetchGoals();
@@ -73,6 +102,8 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
       goalForm.resetFields();
       routeForm.resetFields();
       disassociateRouteForm.resetFields();
+      associateDeviceForm.resetFields();
+      disassociateDeviceForm.resetFields();
       setIsEditMode(false);
       
       // Set initial form values for vehicle edit
@@ -243,10 +274,7 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
         make: "AZAD",
         model: model,
         year: values.year,
-        capacity: values.capacity,
-        status: values.status,
         fleetId: values.fleetId,
-        isActive: values.isActive,
         createdAt: vehicle.createdAt,
         lastModifiedAt: vehicle.lastModifiedAt,
       };
@@ -306,6 +334,57 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
         return;
       }
       const errorMessage = error?.errorMessage || error?.message || "Failed to associate route";
+      message.error(errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAssociateDevice = async (values: any) => {
+    if (!vehicle?.id || !onAssociateDevice) return;
+    
+    try {
+      setSubmitting(true);
+      // Replace spaces with underscores in installedBy
+      const installedBy = values.installedBy.replace(/\s+/g, '_');
+      await onAssociateDevice(vehicle.id, values.deviceId, installedBy);
+      message.success("Device associated successfully");
+      associateDeviceForm.resetFields();
+      await fetchFilteredVehicleData(); // Refresh vehicle data
+    } catch (error: any) {
+      const errorMessage = error?.errorMessage || error?.message || "Failed to associate device";
+      message.error(errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDisassociateDevice = async () => {
+    if (!vehicle?.id || !onDisassociateDevice) return;
+    
+    try {
+      setSubmitting(true);
+      const values = await disassociateDeviceForm.validateFields();
+      // Get device ID from form or vehicle data
+      const deviceId = values.deviceId || vehicleDevice?.id || vehicle.deviceId;
+      if (!deviceId) {
+        message.error("Device ID not found");
+        return;
+      }
+      
+      // Replace spaces with underscores in uninstalledBy if provided
+      const uninstalledBy = values.uninstalledBy ? values.uninstalledBy.replace(/\s+/g, '_') : undefined;
+      
+      await onDisassociateDevice(vehicle.id, deviceId, uninstalledBy, values.reason);
+      message.success("Device disassociated successfully");
+      disassociateDeviceForm.resetFields();
+      await fetchFilteredVehicleData(); // Refresh vehicle data
+    } catch (error: any) {
+      if (error?.errorFields) {
+        // Form validation error
+        return;
+      }
+      const errorMessage = error?.errorMessage || error?.message || "Failed to disassociate device";
       message.error(errorMessage);
     } finally {
       setSubmitting(false);
@@ -480,36 +559,6 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
                       </Form.Item>
 
                       <Form.Item
-                        label="Capacity"
-                        name="capacity"
-                        rules={[
-                          { required: true, message: "Please enter capacity" },
-                          { type: "number", min: 0, message: "Capacity must be a positive number" },
-                        ]}
-                      >
-                        <InputNumber
-                          className="w-full"
-                          placeholder="Enter capacity"
-                          min={0}
-                          size="large"
-                        />
-                      </Form.Item>
-
-                      <Form.Item
-                        label="Status"
-                        name="status"
-                        rules={[{ required: true, message: "Please select status" }]}
-                      >
-                        <Select placeholder="Select status" size="large">
-                          {STATUS_OPTIONS.map((option) => (
-                            <Option key={option.value} value={option.value}>
-                              {option.label}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-
-                      <Form.Item
                         label="Fleet"
                         name="fleetId"
                       >
@@ -526,16 +575,6 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
                               {fleet.name} {fleet.organizationName ? `(${fleet.organizationName})` : ""}
                             </Option>
                           ))}
-                        </Select>
-                      </Form.Item>
-
-                      <Form.Item
-                        label="Active"
-                        name="isActive"
-                      >
-                        <Select size="large">
-                          <Option value={true}>Active</Option>
-                          <Option value={false}>Inactive</Option>
                         </Select>
                       </Form.Item>
                     </div>
@@ -557,42 +596,6 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
                         <p className="text-xs text-gray-500 mb-0">Year</p>
                         <p className="font-semibold text-sm leading-tight">{displayVehicle.year || "N/A"}</p>
                       </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-0">Capacity</p>
-                        <p className="font-semibold text-sm leading-tight">{displayVehicle.capacity || "N/A"}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-0">Status</p>
-                        <p className="font-semibold text-sm leading-tight">{displayVehicle.status?.replace(/_/g, " ") || "N/A"}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-0">Active</p>
-                        <p className="font-semibold text-sm leading-tight">{displayVehicle.isActive ? "Yes" : "No"}</p>
-                      </div>
-                      {displayVehicle.operational !== undefined && (
-                        <div>
-                          <p className="text-xs text-gray-500 mb-0">Operational</p>
-                          <p className="font-semibold text-sm leading-tight">{displayVehicle.operational ? "Yes" : "No"}</p>
-                        </div>
-                      )}
-                      {displayVehicle.moving !== undefined && (
-                        <div>
-                          <p className="text-xs text-gray-500 mb-0">Moving</p>
-                          <p className="font-semibold text-sm leading-tight">{displayVehicle.moving ? "Yes" : "No"}</p>
-                        </div>
-                      )}
-                      {displayVehicle.charging !== undefined && (
-                        <div>
-                          <p className="text-xs text-gray-500 mb-0">Charging</p>
-                          <p className="font-semibold text-sm leading-tight">{displayVehicle.charging ? "Yes" : "No"}</p>
-                        </div>
-                      )}
-                      {displayVehicle.idle !== undefined && (
-                        <div>
-                          <p className="text-xs text-gray-500 mb-0">Idle</p>
-                          <p className="font-semibold text-sm leading-tight">{displayVehicle.idle ? "Yes" : "No"}</p>
-                        </div>
-                      )}
                     </div>
 
                     <Divider className="my-2" style={{ marginTop: '8px', marginBottom: '8px' }}>Related Information</Divider>
@@ -645,9 +648,14 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
                     </div>
                   </>
                 )}
-
-                <Divider className="my-2" style={{ marginTop: '8px', marginBottom: '8px' }}>Fleet Management</Divider>
-
+              </div>
+            ),
+          },
+          {
+            key: "fleet",
+            label: "Fleet Management",
+            children: (
+              <div className="space-y-2">
                 <div className="space-y-2">
                   {(displayVehicle.fleetId || vehicleFleet) ? (
                     <div>
@@ -720,6 +728,169 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
                     </Form>
                   )}
                 </div>
+              </div>
+            ),
+          },
+          {
+            key: "devices",
+            label: "Device Management",
+            children: (
+              <div className="space-y-1">
+                {(vehicleDevice || displayVehicle.deviceId) ? (
+                  <div>
+                    <Divider className="my-1" style={{ marginTop: '4px', marginBottom: '4px' }}>Disassociate Device</Divider>
+                    
+                    <Form
+                      form={disassociateDeviceForm}
+                      layout="vertical"
+                      onFinish={handleDisassociateDevice}
+                      size="small"
+                      initialValues={{ 
+                        deviceId: vehicleDevice?.id || displayVehicle.deviceId 
+                      }}
+                    >
+                      <Form.Item
+                        label="Device"
+                        name="deviceId"
+                        rules={[{ required: true, message: "Device ID is required" }]}
+                        style={{ marginBottom: '12px' }}
+                      >
+                        <Select
+                          placeholder="Device"
+                          size="middle"
+                          disabled
+                        >
+                          <Option value={vehicleDevice?.id || displayVehicle.deviceId}>
+                            Device ID: {vehicleDevice?.deviceId || vehicleDevice?.id || displayVehicle.deviceId}
+                            {vehicleDevice?.serialNumber ? ` (${vehicleDevice.serialNumber})` : ''}
+                          </Option>
+                        </Select>
+                      </Form.Item>
+
+                      <Form.Item
+                        label="Uninstalled By (Optional)"
+                        name="uninstalledBy"
+                        style={{ marginBottom: '12px' }}
+                      >
+                        <Select
+                          placeholder="Select uninstalled by"
+                          size="middle"
+                          showSearch
+                          optionFilterProp="children"
+                        >
+                          <Option value="ADMIN">ADMIN</Option>
+                          {fleets.map((fleet) => (
+                            <Option key={fleet.id} value={fleet.name}>
+                              {fleet.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+
+                      <Form.Item
+                        label="Reason (Optional)"
+                        name="reason"
+                        style={{ marginBottom: '12px' }}
+                      >
+                        <TextArea
+                          placeholder="Enter reason for disassociation"
+                          rows={2}
+                          size="middle"
+                        />
+                      </Form.Item>
+
+                      <Form.Item style={{ marginBottom: '8px' }}>
+                        <Button
+                          type="primary"
+                          danger
+                          htmlType="submit"
+                          loading={submitting}
+                          size="middle"
+                        >
+                          Disassociate Device
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                    <div className="mt-2 text-sm text-gray-500">
+                      <p>Please disassociate the current device before associating a new one.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <Divider className="my-1" style={{ marginTop: '4px', marginBottom: '4px' }}>Associate Device</Divider>
+
+                    <Form
+                      form={associateDeviceForm}
+                      layout="vertical"
+                      onFinish={handleAssociateDevice}
+                      size="small"
+                    >
+                      <div className="grid grid-cols-2 gap-2">
+                        <Form.Item
+                          label="Device ID"
+                          name="deviceId"
+                          rules={[{ required: true, message: "Please select a device" }]}
+                          style={{ marginBottom: '12px' }}
+                        >
+                          <Select
+                            placeholder="Select device"
+                            loading={devicesLoading}
+                            showSearch
+                            optionFilterProp="children"
+                            size="middle"
+                            filterOption={(input, option) => {
+                              const deviceId = option?.value?.toString() || '';
+                              const device = devices.find(d => d.id?.toString() === deviceId || d.deviceId?.toString() === deviceId);
+                              if (!device) return false;
+                              const searchText = input.toLowerCase();
+                              const idMatch = device.deviceId?.toString().toLowerCase().includes(searchText);
+                              const serialMatch = device.serialNumber?.toLowerCase().includes(searchText);
+                              return idMatch || serialMatch || false;
+                            }}
+                          >
+                            {devices.map((device) => (
+                              <Option key={device.id} value={device.id}>
+                                Device ID: {device.deviceId || device.id} {device.serialNumber ? `(${device.serialNumber})` : ''}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+
+                        <Form.Item
+                          label="Installed By"
+                          name="installedBy"
+                          rules={[{ required: true, message: "Please select installed by" }]}
+                          style={{ marginBottom: '12px' }}
+                        >
+                          <Select
+                            placeholder="Select installed by"
+                            size="middle"
+                            showSearch
+                            optionFilterProp="children"
+                          >
+                            <Option value="ADMIN">ADMIN</Option>
+                            {fleets.map((fleet) => (
+                              <Option key={fleet.id} value={fleet.name}>
+                                {fleet.name}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                      </div>
+
+                      <Form.Item style={{ marginBottom: '8px' }}>
+                        <Button
+                          type="primary"
+                          htmlType="submit"
+                          loading={submitting}
+                          size="middle"
+                        >
+                          Associate Device
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </div>
+                )}
               </div>
             ),
           },
@@ -824,57 +995,8 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
                     </div>
                   )}
                   
-                  {vehicleRoute && (
-                    <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                      <h4 className="font-semibold text-blue-900 mb-1 text-xs">Current Route Information</h4>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        <div>
-                          <p className="text-xs text-gray-600 mb-0 leading-tight">Route Name</p>
-                          <p className="font-semibold text-sm leading-tight">{vehicleRoute.name || "N/A"}</p>
-                        </div>
-                        {vehicleRoute.startCityName && vehicleRoute.endCityName && (
-                          <div>
-                            <p className="text-xs text-gray-600 mb-0 leading-tight">Route</p>
-                            <p className="font-semibold text-sm leading-tight">{vehicleRoute.startCityName} → {vehicleRoute.endCityName}</p>
-                          </div>
-                        )}
-                        {vehicleRoute.distance && (
-                          <div>
-                            <p className="text-xs text-gray-600 mb-0 leading-tight">Distance</p>
-                            <p className="font-semibold text-sm leading-tight">{vehicleRoute.distance} km</p>
-                          </div>
-                        )}
-                        {vehicleRoute.description && (
-                          <div className="col-span-3">
-                            <p className="text-xs text-gray-600 mb-0 leading-tight">Description</p>
-                            <p className="font-semibold text-sm leading-tight">{vehicleRoute.description}</p>
-                          </div>
-                        )}
-                        {vehicleRoute.estimatedDuration && (
-                          <div>
-                            <p className="text-xs text-gray-600 mb-0 leading-tight">Duration</p>
-                            <p className="font-semibold text-sm leading-tight">{vehicleRoute.estimatedDuration} hrs</p>
-                          </div>
-                        )}
-                        {vehicleRoute.routeType && (
-                          <div>
-                            <p className="text-xs text-gray-600 mb-0 leading-tight">Type</p>
-                            <p className="font-semibold text-sm leading-tight">{vehicleRoute.routeType.replace(/_/g, " ")}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  
                   {(displayVehicle.routeId || vehicleRoute) ? (
                     <div className="mb-2">
-                      <p className="text-sm text-gray-600 mb-1">
-                        Current Route: <strong>{vehicleRoute?.name || displayVehicle.route?.name || `Route ID: ${displayVehicle.routeId}`}</strong>
-                        {vehicleRoute?.description && (
-                          <span className="text-gray-500 ml-2">- {vehicleRoute.description}</span>
-                        )}
-                      </p>
-                      
                       <Divider className="my-1" style={{ marginTop: '6px', marginBottom: '6px' }}>Disassociate Route</Divider>
                       
                       <Form
@@ -895,15 +1017,22 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
                             optionFilterProp="children"
                             size="large"
                             disabled
+                            filterOption={(input, option) => {
+                              const routeId = option?.value as number;
+                              const route = routes.find(r => r.id === routeId) || vehicleRoute;
+                              if (!route) return false;
+                              const displayName = getRouteDisplayName(route).toLowerCase();
+                              return displayName.includes(input.toLowerCase());
+                            }}
                           >
                             {vehicleRoute && (
                               <Option key={vehicleRoute.id} value={vehicleRoute.id}>
-                                {vehicleRoute.name} {vehicleRoute.description ? `- ${vehicleRoute.description}` : ""}
+                                {getRouteDisplayName(vehicleRoute)}
                               </Option>
                             )}
                             {routes.map((route) => (
                               <Option key={route.id} value={route.id}>
-                                {route.name} {route.description ? `- ${route.description}` : ""}
+                                {getRouteDisplayName(route)}
                               </Option>
                             ))}
                           </Select>
@@ -957,10 +1086,17 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
                         showSearch
                         optionFilterProp="children"
                         size="large"
+                        filterOption={(input, option) => {
+                          const routeId = option?.value as number;
+                          const route = routes.find(r => r.id === routeId);
+                          if (!route) return false;
+                          const displayName = getRouteDisplayName(route).toLowerCase();
+                          return displayName.includes(input.toLowerCase());
+                        }}
                       >
                         {routes.map((route) => (
                           <Option key={route.id} value={route.id}>
-                            {route.name} {route.description ? `- ${route.description}` : ""}
+                            {getRouteDisplayName(route)}
                           </Option>
                         ))}
                       </Select>

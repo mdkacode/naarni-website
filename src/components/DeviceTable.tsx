@@ -1,6 +1,7 @@
 // Device Table Component using Ant Design
 import React from "react";
-import { Tag } from "antd";
+import { Tag,  Space,  Button } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import type { VehicleDevice } from "../types/device";
 import { formatDate } from "../utils/formatters";
 import { DataTable, type DataTableColumn } from "./DataTable";
@@ -8,6 +9,7 @@ import { DataTable, type DataTableColumn } from "./DataTable";
 interface DeviceTableProps {
   devices: VehicleDevice[];
   loading?: boolean;
+  onDelete?: (device: VehicleDevice) => void;
 }
 
 const getStatusTag = (status?: string) => {
@@ -20,20 +22,41 @@ const getStatusTag = (status?: string) => {
   return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>;
 };
 
-const getDeviceColumns = (): DataTableColumn<VehicleDevice>[] => [
+const getDeviceColumns = (onDelete?: (device: VehicleDevice) => void): DataTableColumn<VehicleDevice>[] => {
+  const handleDelete = (record: VehicleDevice, e: React.MouseEvent<HTMLElement>) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    
+    if (!onDelete) return;
+    
+    // Test if click is working
+    console.log("Delete button clicked for device:", record);
+    onDelete(record);
+    // Modal.confirm({
+    //   title: "Are you sure?",
+    //   icon: <ExclamationCircleOutlined />,
+    //   content: `Are you sure you want to delete device ${record.deviceId || record.id}? This action cannot be undone.`,
+    //   okText: "Yes, Delete",
+    //   okType: "danger",
+    //   cancelText: "Cancel",
+    //   onOk: () => {
+    //     console.log("Delete confirmed for device:", record);
+    //     onDelete(record);
+    //   },
+    // });
+  };
+
+  return [
   {
     key: "id",
-    title: "ID",
-    dataIndex: "id",
-    render: (id) => `#${id || "N/A"}`,
+    title: "Device ID",
+    dataIndex: "deviceId",
+    render: (id) => `${id || "N/A"}`,
     sorter: (a, b) => (a.id || 0) - (b.id || 0),
   },
-  {
-    key: "deviceUuid",
-    title: "Device UUID",
-    dataIndex: "deviceUuid",
-    render: (value) => value || "N/A",
-  },
+  
   {
     key: "vehicle",
     title: "Vehicle",
@@ -51,17 +74,6 @@ const getDeviceColumns = (): DataTableColumn<VehicleDevice>[] => [
     onFilter: (value, record) => record.status === value,
   },
   {
-    key: "installedAt",
-    title: "Installed At",
-    dataIndex: "installedAt",
-    render: (value) => formatDate(value),
-    sorter: (a, b) => {
-      const aTime = typeof a.installedAt === "number" ? a.installedAt : new Date(a.installedAt || 0).getTime();
-      const bTime = typeof b.installedAt === "number" ? b.installedAt : new Date(b.installedAt || 0).getTime();
-      return aTime - bTime;
-    },
-  },
-  {
     key: "createdAt",
     title: "Created At",
     dataIndex: "createdAt",
@@ -72,14 +84,40 @@ const getDeviceColumns = (): DataTableColumn<VehicleDevice>[] => [
       return aTime - bTime;
     },
   },
+  {
+    key: "actions",
+    title: "Actions",
+    render: (_, record) => (
+      <Space size="small">
+        {onDelete && (
+          <Button
+            type="primary"
+            danger
+            size="large"
+            icon={<DeleteOutlined />}
+            onClick={(e) => handleDelete(record, e)}
+          >
+            Delete
+          </Button>
+        )}
+      </Space>
+    ),
+    width: 120,
+    onCell: () => ({
+      onClick: (e) => {
+        e.stopPropagation();
+      },
+    }),
+  },
 ];
+};
 
-export const DeviceTable: React.FC<DeviceTableProps> = ({ devices, loading = false }) => {
+export const DeviceTable: React.FC<DeviceTableProps> = ({ devices, loading = false, onDelete }) => {
   return (
     <div className="hidden md:block">
       <DataTable<VehicleDevice>
         data={devices}
-        columns={getDeviceColumns()}
+        columns={getDeviceColumns(onDelete)}
         loading={loading}
         scroll={{ x: "max-content" }}
         rowKey="id"

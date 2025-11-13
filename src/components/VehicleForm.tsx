@@ -1,7 +1,7 @@
 // Vehicle Form Component
 import React, { useState } from "react";
 import type { Vehicle } from "../types/vehicle";
-import { VEHICLE_MAKES, VEHICLE_MODELS, VEHICLE_STATUSES } from "../constants/vehicleOptions";
+import { VEHICLE_MAKES, VEHICLE_MODELS } from "../constants/vehicleOptions";
 
 interface VehicleFormProps {
   onSubmit: (data: Partial<Vehicle>) => Promise<void>;
@@ -19,9 +19,7 @@ export const VehicleForm: React.FC<VehicleFormProps> = ({
     make: "AZAD",
     model: "",
     year: new Date().getFullYear(),
-    capacity: 0,
     fleetId: undefined,
-    status: "PLUGGED_IN",
     isActive: true,
   });
   const [error, setError] = useState("");
@@ -58,8 +56,6 @@ export const VehicleForm: React.FC<VehicleFormProps> = ({
         model: formData.model,
         make: formData.make || "AZAD",
         year: formData.year || 0,
-        capacity: formData.capacity || 0,
-        status: formData.status || "PLUGGED_IN",
         isActive: true,
         fleetId: formData.fleetId || 0,
       };
@@ -130,51 +126,19 @@ export const VehicleForm: React.FC<VehicleFormProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Year
-          </label>
-          <input
-            type="number"
-            value={formData.year || ""}
-            onChange={(e) => handleChange("year", parseInt(e.target.value) || new Date().getFullYear())}
-            min="1900"
-            max={new Date().getFullYear() + 1}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            placeholder="2025"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Capacity
-          </label>
-          <input
-            type="number"
-            value={formData.capacity || ""}
-            onChange={(e) => handleChange("capacity", parseInt(e.target.value) || 0)}
-            min="0"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            placeholder="25"
-          />
-        </div>
-      </div>
-
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Status
+          Year
         </label>
-        <select
-          value={formData.status || "PLUGGED_IN"}
-          onChange={(e) => handleChange("status", e.target.value)}
+        <input
+          type="number"
+          value={formData.year || ""}
+          onChange={(e) => handleChange("year", parseInt(e.target.value) || new Date().getFullYear())}
+          min="1900"
+          max={new Date().getFullYear() + 1}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-        >
-          {VEHICLE_STATUSES.map((status) => (
-            <option key={status} value={status}>
-              {status.replace("_", " ")}
-            </option>
-          ))}
-        </select>
+          placeholder="2025"
+        />
       </div>
 
       <div>

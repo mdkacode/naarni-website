@@ -4,7 +4,7 @@ import type { Route, RouteCreateRequest, RouteUpdateRequest, RouteListResponse, 
 
 export const routeService = {
   getRoutes: async (token: string): Promise<RouteListResponse> => {
-    const response = await fetchWithAuth<RouteListResponse>("/routes/user", token);
+    const response = await fetchWithAuth<RouteListResponse>("/routes", token);
     return response;
   },
   
@@ -27,6 +27,12 @@ export const routeService = {
       body: JSON.stringify(data),
     });
     return response.body || response as any;
+  },
+  
+  deleteRoute: async (token: string, routeId: number): Promise<void> => {
+    await fetchWithAuth(`/routes/${routeId}`, token, {
+      method: "DELETE",
+    });
   },
   
   extractRouteData: (response: RouteListResponse): Route[] => {

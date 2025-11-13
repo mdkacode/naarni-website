@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { message } from "antd";
 import { useAuth } from "../hooks/useAuth";
 import { useVehicles } from "../hooks/useVehicles";
 import { Sidebar } from "../components/Sidebar";
@@ -51,7 +52,7 @@ const EmptyState = () => (
 
 const Vehicles: React.FC = () => {
   const { token, logout } = useAuth();
-  const { vehicles, loading, error, fetchVehicles, createVehicle, updateVehicle, associateFleet, disassociateFleet, associateRoute, disassociateRoute } = useVehicles(token);
+  const { vehicles, loading, error, fetchVehicles, createVehicle, updateVehicle, deleteVehicle, associateFleet, disassociateFleet, associateRoute, disassociateRoute, associateDevice, disassociateDevice } = useVehicles(token);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -117,6 +118,39 @@ const Vehicles: React.FC = () => {
   const handleDisassociateRoute = async (vehicleId: number, routeId: number, reason?: string) => {
     await disassociateRoute(vehicleId, routeId, reason);
     fetchVehicles(); // Refresh the list
+  };
+
+  const handleAssociateDevice = async (vehicleId: number, deviceId: number, installedBy: string) => {
+    await associateDevice(vehicleId, deviceId, installedBy);
+    fetchVehicles(); // Refresh the list
+  };
+
+  const handleDisassociateDevice = async (vehicleId: number, deviceId: number, uninstalledBy?: string, reason?: string) => {
+    await disassociateDevice(vehicleId, deviceId, uninstalledBy, reason);
+    fetchVehicles(); // Refresh the list
+  };
+
+  const handleDelete = async (vehicle: Vehicle) => {
+    console.log("handleDelete called with vehicle:", vehicle);
+    if (!vehicle.id) {
+      console.error("Vehicle ID is missing");
+      return;
+    }
+    try {
+      console.log("Calling deleteVehicle with ID:", vehicle.id);
+      await deleteVehicle(vehicle.id);
+      console.log("Vehicle deleted successfully");
+      message.success(`Vehicle "${vehicle.registrationNumber || `#${vehicle.id}`}" deleted successfully`);
+      // Close modal if the deleted vehicle is currently selected
+      if (selectedVehicle?.id === vehicle.id) {
+        setDetailsModalVisible(false);
+        setSelectedVehicle(null);
+      }
+    } catch (err: any) {
+      console.error("Error deleting vehicle:", err);
+      message.error(err?.message || "Failed to delete vehicle");
+      throw err; // Re-throw to let Modal know the operation failed
+    }
   };
 
   return (
@@ -202,6 +236,7 @@ const Vehicles: React.FC = () => {
                   vehicles={vehicles}
                   loading={loading}
                   onViewDetails={handleViewDetails}
+                  onDelete={handleDelete}
                 />
               )}
             </div>
@@ -219,6 +254,8 @@ const Vehicles: React.FC = () => {
         onDisassociate={handleDisassociate}
         onAssociateRoute={handleAssociateRoute}
         onDisassociateRoute={handleDisassociateRoute}
+        onAssociateDevice={handleAssociateDevice}
+        onDisassociateDevice={handleDisassociateDevice}
       />
     </div>
   );

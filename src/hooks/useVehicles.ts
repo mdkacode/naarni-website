@@ -10,10 +10,13 @@ interface UseVehiclesReturn {
   fetchVehicles: (filterRequest?: VehicleFilterRequest) => Promise<void>;
   createVehicle: (data: Partial<Vehicle>) => Promise<void>;
   updateVehicle: (vehicleId: number, data: Partial<Vehicle>) => Promise<void>;
+  deleteVehicle: (vehicleId: number) => Promise<void>;
   associateFleet: (vehicleId: number, fleetId: number) => Promise<void>;
   disassociateFleet: (vehicleId: number) => Promise<void>;
   associateRoute: (vehicleId: number, routeId: number, notes?: string) => Promise<void>;
   disassociateRoute: (vehicleId: number, routeId: number, reason?: string) => Promise<void>;
+  associateDevice: (vehicleId: number, deviceId: number, installedBy: string) => Promise<void>;
+  disassociateDevice: (vehicleId: number, deviceId: number, uninstalledBy?: string, reason?: string) => Promise<void>;
 }
 
 export const useVehicles = (token: string | null): UseVehiclesReturn => {
@@ -63,6 +66,24 @@ export const useVehicles = (token: string | null): UseVehiclesReturn => {
       await fetchVehicles(); // Refresh list
     } catch (err: any) {
       setError(err.message || "Failed to update vehicle");
+      throw err;
+    }
+  };
+
+  const deleteVehicle = async (vehicleId: number) => {
+    console.log("deleteVehicle called in hook with ID:", vehicleId);
+    if (!token) throw new Error("No token available");
+    
+    setError("");
+    try {
+      console.log("Calling vehicleService.deleteVehicle");
+      await vehicleService.deleteVehicle(token, vehicleId);
+      console.log("Service call successful, refreshing list");
+      await fetchVehicles(); // Refresh list
+      console.log("List refreshed");
+    } catch (err: any) {
+      console.error("Error in deleteVehicle hook:", err);
+      setError(err.message || "Failed to delete vehicle");
       throw err;
     }
   };
@@ -119,6 +140,32 @@ export const useVehicles = (token: string | null): UseVehiclesReturn => {
     }
   };
 
+  const associateDevice = async (vehicleId: number, deviceId: number, installedBy: string) => {
+    if (!token) throw new Error("No token available");
+    
+    setError("");
+    try {
+      await vehicleService.associateDevice(token, vehicleId, deviceId, installedBy);
+      await fetchVehicles(); // Refresh list
+    } catch (err: any) {
+      setError(err.message || "Failed to associate device");
+      throw err;
+    }
+  };
+
+  const disassociateDevice = async (vehicleId: number, deviceId: number, uninstalledBy?: string, reason?: string) => {
+    if (!token) throw new Error("No token available");
+    
+    setError("");
+    try {
+      await vehicleService.disassociateDevice(token, vehicleId, deviceId, uninstalledBy, reason);
+      await fetchVehicles(); // Refresh list
+    } catch (err: any) {
+      setError(err.message || "Failed to disassociate device");
+      throw err;
+    }
+  };
+
   useEffect(() => {
     if (token) {
       fetchVehicles();
@@ -132,10 +179,13 @@ export const useVehicles = (token: string | null): UseVehiclesReturn => {
     fetchVehicles,
     createVehicle,
     updateVehicle,
+    deleteVehicle,
     associateFleet,
     disassociateFleet,
     associateRoute,
     disassociateRoute,
+    associateDevice,
+    disassociateDevice,
   };
 };
 

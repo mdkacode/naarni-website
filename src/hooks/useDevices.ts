@@ -12,6 +12,7 @@ interface UseDevicesReturn {
   totalElements: number;
   fetchDevices: (page: number) => Promise<void>;
   createDevice: (data: DeviceCreateRequest) => Promise<void>;
+  deleteDevice: (id: number) => Promise<void>;
 }
 
 export const useDevices = (token: string | null): UseDevicesReturn => {
@@ -60,6 +61,19 @@ export const useDevices = (token: string | null): UseDevicesReturn => {
     }
   };
 
+  const deleteDevice = async (id: number) => {
+    if (!token) throw new Error("No token available");
+    
+    setError("");
+    try {
+      await deviceService.deleteDevice(token, id);
+      await fetchDevices(currentPage); // Refresh list with current page
+    } catch (err: any) {
+      setError(err.message || "Failed to delete device");
+      throw err;
+    }
+  };
+
   useEffect(() => {
     if (token) {
       fetchDevices(0);
@@ -75,6 +89,7 @@ export const useDevices = (token: string | null): UseDevicesReturn => {
     totalElements,
     fetchDevices,
     createDevice,
+    deleteDevice,
   };
 };
 

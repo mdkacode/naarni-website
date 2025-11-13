@@ -1,19 +1,7 @@
 // Device Form Component using Ant Design
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Row, Col, message, Alert, Select } from "antd";
+import { Form, Input, Button, Row, Col, message, Alert } from "antd";
 import type { DeviceCreateRequest } from "../types/device";
-
-const { Option } = Select;
-
-const DEVICE_TYPE_OPTIONS = [
-  { value: "OBD_DEVICE", label: "OBD Device" },
-];
-
-const STATUS_OPTIONS = [
-  { value: "ACTIVE", label: "Active" },
-  { value: "INACTIVE", label: "Inactive" },
-  { value: "MAINTENANCE", label: "Maintenance" },
-];
 
 interface DeviceFormProps {
   onSubmit: (data: DeviceCreateRequest) => Promise<void>;
@@ -41,13 +29,13 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
     try {
       const formData: DeviceCreateRequest = {
         deviceId: values.deviceId,
-        deviceType: values.deviceType,
-        manufacturer: values.manufacturer,
-        model: values.model,
+        deviceType: "OBD_DEVICE", // Default value
+        manufacturer: "BYTEBEAM", // Default value
+        model: "GTU-10", // Default value
         serialNumber: values.serialNumber,
-        firmwareVersion: values.firmwareVersion,
-        status: values.status,
-        isActive: values.isActive !== undefined ? values.isActive : true,
+        firmwareVersion: "1.0.0", // Default value
+        status: "ACTIVE", // Default value
+        isActive: true, // Default value
       };
       
       await onSubmit(formData);
@@ -110,86 +98,11 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
 
         <Col xs={24} sm={24} md={12}>
           <Form.Item
-            label="Device Type"
-            name="deviceType"
-            rules={[{ required: true, message: "Please select device type" }]}
-          >
-            <Select placeholder="Select device type" size="large">
-              {DEVICE_TYPE_OPTIONS.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} sm={24} md={12}>
-          <Form.Item
-            label="Manufacturer"
-            name="manufacturer"
-            rules={[{ required: true, message: "Please enter manufacturer" }]}
-          >
-            <Input placeholder="e.g., BYTEBEAM" size="large" />
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} sm={24} md={12}>
-          <Form.Item
-            label="Model"
-            name="model"
-            rules={[{ required: true, message: "Please enter model" }]}
-          >
-            <Input placeholder="e.g., GTU-10" size="large" />
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} sm={24} md={12}>
-          <Form.Item
-            label="Serial Number"
+            label="IMEI Number"
             name="serialNumber"
-            rules={[{ required: true, message: "Please enter serial number" }]}
+            rules={[{ required: true, message: "Please enter IMEI number" }]}
           >
             <Input placeholder="e.g., SN123456789" size="large" />
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} sm={24} md={12}>
-          <Form.Item
-            label="Firmware Version"
-            name="firmwareVersion"
-            rules={[{ required: true, message: "Please enter firmware version" }]}
-          >
-            <Input placeholder="e.g., 1.0.0" size="large" />
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} sm={24} md={12}>
-          <Form.Item
-            label="Status"
-            name="status"
-            rules={[{ required: true, message: "Please select status" }]}
-          >
-            <Select placeholder="Select status" size="large">
-              {STATUS_OPTIONS.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} sm={24} md={12}>
-          <Form.Item
-            label="Active"
-            name="isActive"
-            initialValue={true}
-          >
-            <Select placeholder="Select active status" size="large">
-              <Option value={true}>Active</Option>
-              <Option value={false}>Inactive</Option>
-            </Select>
           </Form.Item>
         </Col>
       </Row>

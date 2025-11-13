@@ -52,7 +52,7 @@ const EmptyState = () => (
 
 export const Routes: React.FC = () => {
   const { token, logout } = useAuth();
-  const { routes, loading, error, fetchRoutes, createRoute, updateRoute } = useRoutes(token);
+  const { routes, loading, error, fetchRoutes, createRoute, updateRoute, deleteRoute } = useRoutes(token);
   const [showForm, setShowForm] = useState(false);
   const [editingRoute, setEditingRoute] = useState<Route | null>(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -102,6 +102,16 @@ export const Routes: React.FC = () => {
 
   const handleRetry = () => {
     fetchRoutes();
+  };
+
+  const handleDelete = async (route: Route) => {
+    if (!route.id) return;
+    try {
+      await deleteRoute(route.id);
+    } catch (err: any) {
+      console.error("Error deleting route:", err);
+      // Error is handled by the hook
+    }
   };
 
   return (
@@ -196,6 +206,7 @@ export const Routes: React.FC = () => {
                   routes={routes}
                   loading={loading}
                   onEdit={handleEdit}
+                  onDelete={handleDelete}
                 />
               )}
             </Card>
