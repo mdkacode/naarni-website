@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, InputNumber, Select, Button, Row, Col, message, Alert } from "antd";
 import type { Route, RouteCreateRequest, RouteUpdateRequest } from "../types/route";
+import { useCities } from "../hooks/useCities";
+import { useAuth } from "../hooks/useAuth";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -21,8 +23,17 @@ export const RouteForm: React.FC<RouteFormProps> = ({
   loading = false,
   onError,
 }) => {
+  const { token } = useAuth();
+  const { cities, loading: citiesLoading, fetchCities } = useCities(token);
   const [form] = Form.useForm();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (token) {
+      // Fetch all cities for dropdowns (using a large page size to get all cities)
+      fetchCities(0, 1000);
+    }
+  }, [token, fetchCities]);
 
   useEffect(() => {
     if (route) {
@@ -46,12 +57,23 @@ export const RouteForm: React.FC<RouteFormProps> = ({
     setErrorMessage(null);
     
     try {
+      // Find city IDs from selected city names
+      const startCity = cities.find(city => city.name === values.startCityName);
+      const endCity = cities.find(city => city.name === values.endCityName);
+      
+      if (!startCity || !startCity.id) {
+        throw new Error("Please select a valid start city");
+      }
+      if (!endCity || !endCity.id) {
+        throw new Error("Please select a valid end city");
+      }
+      
       const formData = {
         id: route?.id || 0,
         name: values.name,
         description: values.description || "",
-        startCityId: values.startCityId,
-        endCityId: values.endCityId,
+        startCityId: startCity.id,
+        endCityId: endCity.id,
         startCityName: values.startCityName || "",
         endCityName: values.endCityName || "",
         distance: values.distance || 0,
@@ -147,51 +169,91 @@ export const RouteForm: React.FC<RouteFormProps> = ({
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={24} md={12}>
           <Form.Item
-            label="Start City ID"
-            name="startCityId"
-            rules={[{ required: true, message: "Please enter start city ID" }]}
-          >
-            <InputNumber 
-              className="w-full" 
-              placeholder="13" 
-              size="large"
-              min={0}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} sm={24} md={12}>
-          <Form.Item
-            label="Start City Name"
+            label="Start City"
             name="startCityName"
+            dependencies={['endCityName']}
+            rules={[
+              { required: true, message: "Please select start city" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('endCityName') !== value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Start city and end city cannot be the same'));
+                },
+              }),
+            ]}
           >
-            <Input placeholder="Bangalore" size="large" />
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Row gutter={[16, 0]}>
-        <Col xs={24} sm={24} md={12}>
-          <Form.Item
-            label="End City ID"
-            name="endCityId"
-            rules={[{ required: true, message: "Please enter end city ID" }]}
-          >
-            <InputNumber 
-              className="w-full" 
-              placeholder="23" 
+            <Select 
+              placeholder="Select start city" 
               size="large"
-              min={0}
-            />
+              loading={citiesLoading}
+              showSearch
+              filterOption={(input, option) => {
+                const cityName = option?.value || '';
+                const city = cities.find(c => c.name === cityName);
+                if (!city) return false;
+                const searchText = input.toLowerCase();
+                const nameMatch = city.name?.toLowerCase().includes(searchText);
+                const stateMatch = city.state?.toLowerCase().includes(searchText);
+                return nameMatch || stateMatch || false;
+              }}
+              onChange={() => {
+                // Trigger validation for end city when start city changes
+                form.validateFields(['endCityName']);
+              }}
+            >
+              {cities.map((city) => (
+                <Option key={city.id} value={city.name || ""}>
+                  {city.name} {city.state ? `(${city.state})` : ""}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
         </Col>
 
         <Col xs={24} sm={24} md={12}>
           <Form.Item
-            label="End City Name"
+            label="End City"
             name="endCityName"
+            dependencies={['startCityName']}
+            rules={[
+              { required: true, message: "Please select end city" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('startCityName') !== value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Start city and end city cannot be the same'));
+                },
+              }),
+            ]}
           >
-            <Input placeholder="Chennai" size="large" />
+            <Select 
+              placeholder="Select end city" 
+              size="large"
+              loading={citiesLoading}
+              showSearch
+              filterOption={(input, option) => {
+                const cityName = option?.value || '';
+                const city = cities.find(c => c.name === cityName);
+                if (!city) return false;
+                const searchText = input.toLowerCase();
+                const nameMatch = city.name?.toLowerCase().includes(searchText);
+                const stateMatch = city.state?.toLowerCase().includes(searchText);
+                return nameMatch || stateMatch || false;
+              }}
+              onChange={() => {
+                // Trigger validation for start city when end city changes
+                form.validateFields(['startCityName']);
+              }}
+            >
+              {cities.map((city) => (
+                <Option key={city.id} value={city.name || ""}>
+                  {city.name} {city.state ? `(${city.state})` : ""}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
         </Col>
       </Row>

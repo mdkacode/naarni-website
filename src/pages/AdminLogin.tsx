@@ -42,10 +42,21 @@ const AdminLogin: React.FC = () => {
   });
 
   // Step 2: OTP Generation
-  const [phone, setPhone] = useState<string>("");
+  const [phone, setPhone] = useState<string>(() => {
+    const saved = localStorage.getItem("admin_phone");
+    return saved || "";
+  });
 
   // Step 3: Login
   const [otp, setOtp] = useState<string>("");
+
+  // Check if user is already logged in and redirect to dashboard
+  useEffect(() => {
+    const accessToken = localStorage.getItem("admin_access_token");
+    if (accessToken) {
+      navigate("/admin/dashboard");
+    }
+  }, [navigate]);
 
   // Generate device UUID on mount if not exists
   useEffect(() => {
@@ -67,6 +78,16 @@ const AdminLogin: React.FC = () => {
   useEffect(() => {
     if (deviceId && step === 1) {
       setStep(2);
+    }
+  }, [deviceId, step]);
+
+  // Auto-advance to step 3 if phone number is already saved and device is registered
+  useEffect(() => {
+    const savedPhone = localStorage.getItem("admin_phone");
+    const accessToken = localStorage.getItem("admin_access_token");
+    if (deviceId && savedPhone && !accessToken && step === 2) {
+      // If user has device and phone but no token, they can go directly to OTP step
+      setStep(3);
     }
   }, [deviceId, step]);
 
@@ -238,10 +259,8 @@ const AdminLogin: React.FC = () => {
         localStorage.setItem("admin_phone", phone);
         
         setSuccess("Login successful! Redirecting...");
-        setTimeout(() => {
-          // Navigate to admin dashboard (to be created later)
-          navigate("/admin/dashboard");
-        }, 1500);
+        // Redirect immediately to dashboard
+        navigate("/admin/dashboard", { replace: true });
       } else {
         throw new Error("Access token not received");
       }
