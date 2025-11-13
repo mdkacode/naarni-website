@@ -59,6 +59,7 @@ export const vehicleService = {
       method: "DELETE",
     });
     console.log("Delete API call completed, result:", result);
+    //@ts-ignore
     return result;
   },
   

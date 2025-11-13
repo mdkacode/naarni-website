@@ -1,6 +1,10 @@
-// Organization Form Component
-import React, { useState, useEffect } from "react";
+// Organization Form Component using Ant Design
+import React, { useEffect, useState } from "react";
+import { Form, Input, Select, Button, Row, Col, message, Alert, Checkbox } from "antd";
 import type { Organization } from "../types/organization";
+
+const { Option } = Select;
+const { TextArea } = Input;
 
 interface OrganizationFormProps {
   organization?: Organization | null;
@@ -17,19 +21,12 @@ export const OrganizationForm: React.FC<OrganizationFormProps> = ({
   onCancel,
   loading = false,
 }) => {
-  const [formData, setFormData] = useState<Partial<Organization>>({
-    name: "",
-    type: "PRIVATE",
-    address: "",
-    contactNumber: "",
-    email: "",
-    isOperator: false,
-  });
-  const [error, setError] = useState("");
+  const [form] = Form.useForm();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (organization) {
-      setFormData({
+      form.setFieldsValue({
         name: organization.name || "",
         type: organization.type || "PRIVATE",
         address: organization.address || "",
@@ -37,145 +34,152 @@ export const OrganizationForm: React.FC<OrganizationFormProps> = ({
         email: organization.email || "",
         isOperator: organization.isOperator ?? false,
       });
+    } else {
+      form.resetFields();
     }
-  }, [organization]);
+  }, [organization, form]);
 
-  const handleChange = (field: keyof Organization, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    setError("");
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (!formData.name?.trim()) {
-      setError("Name is required");
-      return;
-    }
-
-    if (!formData.type) {
-      setError("Type is required");
-      return;
-    }
-
+  const handleSubmit = async (values: any) => {
+    setErrorMessage(null);
+    
     try {
-      await onSubmit(formData);
-    } catch (err: any) {
-      setError(err.message || "Failed to save organization");
+      await onSubmit(values);
+      form.resetFields();
+      setErrorMessage(null);
+    } catch (error: any) {
+      let extractedErrorMessage = "Failed to save organization. Please try again.";
+      
+      if (error?.response?.data?.errorMessage) {
+        extractedErrorMessage = error.response.data.errorMessage;
+      } else if (error?.errorMessage) {
+        extractedErrorMessage = error.errorMessage;
+      } else if (error?.message) {
+        extractedErrorMessage = error.message;
+      } else if (typeof error === 'string') {
+        extractedErrorMessage = error;
+      }
+      
+      setErrorMessage(extractedErrorMessage);
+      message.error(extractedErrorMessage, 5);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-          {error}
-        </div>
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={handleSubmit}
+      className="w-full"
+      initialValues={{
+        type: "PRIVATE",
+        isOperator: false,
+      }}
+    >
+      {errorMessage && (
+        <Alert
+          message="Error"
+          description={errorMessage}
+          type="error"
+          showIcon
+          closable
+          onClose={() => setErrorMessage(null)}
+          className="mb-6"
+          style={{ marginBottom: '24px' }}
+        />
       )}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Name <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          value={formData.name || ""}
-          onChange={(e) => handleChange("name", e.target.value)}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          placeholder="Acme Corporation Ltd"
-        />
-      </div>
+      <Form.Item
+        label="Name"
+        name="name"
+        rules={[{ required: true, message: "Please enter organization name" }]}
+      >
+        <Input placeholder="Acme Corporation Ltd" size="large" />
+      </Form.Item>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Type <span className="text-red-500">*</span>
-        </label>
-        <select
-          value={formData.type || "PRIVATE"}
-          onChange={(e) => handleChange("type", e.target.value)}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-        >
+      <Form.Item
+        label="Type"
+        name="type"
+        rules={[{ required: true, message: "Please select organization type" }]}
+      >
+        <Select placeholder="Select organization type" size="large">
           {ORGANIZATION_TYPES.map((type) => (
-            <option key={type} value={type}>
+            <Option key={type} value={type}>
               {type.replace("_", " ")}
-            </option>
+            </Option>
           ))}
-        </select>
-      </div>
+        </Select>
+      </Form.Item>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Address
-        </label>
-        <textarea
-          value={formData.address || ""}
-          onChange={(e) => handleChange("address", e.target.value)}
-          rows={3}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          placeholder="123 Main St, City, State"
+      <Form.Item
+        label="Address"
+        name="address"
+      >
+        <TextArea 
+          rows={3} 
+          placeholder="123 Main St, City, State" 
+          size="large"
         />
-      </div>
+      </Form.Item>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Contact Number
-        </label>
-        <input
+      <Form.Item
+        label="Contact Number"
+        name="contactNumber"
+      >
+        <Input 
           type="tel"
-          value={formData.contactNumber || ""}
-          onChange={(e) => handleChange("contactNumber", e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          placeholder="+919876543210"
+          placeholder="+919876543210" 
+          size="large"
         />
-      </div>
+      </Form.Item>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Email
-        </label>
-        <input
+      <Form.Item
+        label="Email"
+        name="email"
+      >
+        <Input 
           type="email"
-          value={formData.email || ""}
-          onChange={(e) => handleChange("email", e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          placeholder="contact@acme.com"
+          placeholder="contact@acme.com" 
+          size="large"
         />
-      </div>
+      </Form.Item>
 
-      <div className="flex items-center">
-        <input
-          type="checkbox"
-          id="isOperator"
-          checked={formData.isOperator || false}
-          onChange={(e) => handleChange("isOperator", e.target.checked)}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-        />
-        <label htmlFor="isOperator" className="ml-2 text-sm text-gray-700">
-          Is Operator
-        </label>
-      </div>
+      <Form.Item
+        name="isOperator"
+        valuePropName="checked"
+      >
+        <Checkbox>Is Operator</Checkbox>
+      </Form.Item>
 
-      <div className="flex space-x-3 pt-4">
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex-1 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "Saving..." : organization ? "Update" : "Create"}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={loading}
-          className="flex-1 bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+      <Row gutter={[16, 0]}>
+        <Col xs={24} sm={12} md={8}>
+          <Form.Item>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              loading={loading} 
+              size="large" 
+              block
+              className="w-full"
+            >
+              {organization ? "Update Organization" : "Create Organization"}
+            </Button>
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Form.Item>
+            <Button 
+              onClick={onCancel} 
+              disabled={loading} 
+              size="large" 
+              block
+              className="w-full"
+            >
+              Cancel
+            </Button>
+          </Form.Item>
+        </Col>
+      </Row>
+    </Form>
   );
 };
 

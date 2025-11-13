@@ -100,7 +100,7 @@ const getUserColumns = (onEdit?: (user: User) => void): DataTableColumn<User>[] 
     key: "actions",
     title: "Actions",
     render: (_, record) => (
-      <Button type="link" onClick={() => onEdit?.(record)}>
+      <Button type="primary" onClick={() => onEdit?.(record)}>
         Edit
       </Button>
     ),

@@ -1,7 +1,6 @@
 // Vehicle Table Component using Ant Design
 import React from "react";
-import { Button, Space, Modal } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { Button, Space } from "antd";
 import type { Vehicle } from "../types/vehicle";
 import { formatDate } from "../utils/formatters";
 import { DataTable, type DataTableColumn } from "./DataTable";

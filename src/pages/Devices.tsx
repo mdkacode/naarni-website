@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { Card, message } from "antd";
+import { message, Button } from "antd";
 import { useAuth } from "../hooks/useAuth";
 import { useDevices } from "../hooks/useDevices";
-import { Sidebar } from "../components/Sidebar";
+import { PageLayout } from "../components/PageLayout";
+import { PageHeader } from "../components/PageHeader";
+import { PageContent } from "../components/PageContent";
+import { LoadingState, ErrorState, EmptyState } from "../components/PageStates";
 import { DeviceList } from "../components/DeviceList";
 import { DeviceForm } from "../components/DeviceForm";
 import { StatsCard } from "../components/StatsCard";
@@ -27,37 +30,10 @@ const STATS_ICONS = {
   ),
 };
 
-const LoadingState = () => (
-  <div className="flex justify-center items-center py-20">
-    <div className="text-center">
-      <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-      <p className="text-gray-600">Loading devices...</p>
-    </div>
-  </div>
-);
-
-const ErrorState = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
-  <div className="p-6">
-    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-      {error}
-    </div>
-    <button
-      onClick={onRetry}
-      className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-    >
-      Retry
-    </button>
-  </div>
-);
-
-const EmptyState = () => (
-  <div className="text-center py-20">
-    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-    </svg>
-    <h3 className="mt-2 text-sm font-medium text-gray-900">No devices found</h3>
-    <p className="mt-1 text-sm text-gray-500">No vehicle devices have been registered yet.</p>
-  </div>
+const EMPTY_STATE_ICON = (
+  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+  </svg>
 );
 
 const Devices: React.FC = () => {
@@ -107,53 +83,44 @@ const Devices: React.FC = () => {
     } catch (err: any) {
       message.error(err?.message || "Failed to delete device");
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex">
-      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+    <PageLayout
+      sidebarOpen={sidebarOpen}
+      onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+    >
+      <PageHeader
+        title="Devices"
+        description="Vehicle Device Management"
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        actions={
+          <>
+            {!showForm && (
+              <Button
+                type="primary"
+                size="large"
+                onClick={handleCreate}
+                className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+              >
+                + Create Device
+              </Button>
+            )}
+            <Button
+              type="primary"
+              danger
+              size="large"
+              onClick={logout}
+              className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
+            >
+              Logout
+            </Button>
+          </>
+        }
+      />
 
-      <div className="flex-1 lg:ml-64">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
-          <div className="px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-                <div>
-                  <h1 className="text-3xl font-bold text-[#1E40AF]">Devices</h1>
-                  <p className="text-gray-600 mt-1">Vehicle Device Management</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                {!showForm && (
-                  <button
-                    onClick={handleCreate}
-                    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-                  >
-                    + Create Device
-                  </button>
-                )}
-                <button
-                  onClick={logout}
-                  className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PageContent>
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <StatsCard
@@ -184,29 +151,35 @@ const Devices: React.FC = () => {
 
           {/* Device Form or List */}
           {showForm ? (
-            <Card id="device-form-card" className="shadow-xl">
-              <h2 className="text-2xl font-bold text-[#1E40AF] mb-6">
-                Create New Device
-              </h2>
-              <DeviceForm
-                onSubmit={handleSubmit}
-                onCancel={handleCancel}
-                loading={formLoading}
-              />
-            </Card>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden transition-colors">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-[#1E40AF] dark:text-blue-400 mb-6">
+                  Create New Device
+                </h2>
+                <DeviceForm
+                  onSubmit={handleSubmit}
+                  onCancel={handleCancel}
+                  loading={formLoading}
+                />
+              </div>
+            </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
-              <h2 className="text-2xl font-bold text-[#1E40AF]">Device List</h2>
-              <p className="text-gray-600 mt-1">Manage and view all vehicle devices</p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden transition-colors">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-800">
+              <h2 className="text-2xl font-bold text-[#1E40AF] dark:text-blue-400">Device List</h2>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">Manage and view all vehicle devices</p>
             </div>
 
             {loading ? (
-              <LoadingState />
+              <LoadingState message="Loading devices..." />
             ) : error ? (
               <ErrorState error={error} onRetry={handleRetry} />
             ) : devices.length === 0 ? (
-              <EmptyState />
+              <EmptyState
+                title="No devices found"
+                message="No vehicle devices have been registered yet."
+                icon={EMPTY_STATE_ICON}
+              />
             ) : (
               <>
                 <DeviceList devices={devices} loading={loading} onDelete={handleDelete} />
@@ -219,9 +192,8 @@ const Devices: React.FC = () => {
             )}
             </div>
           )}
-        </div>
-      </div>
-    </div>
+      </PageContent>
+    </PageLayout>
   );
 };
 

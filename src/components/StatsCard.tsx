@@ -18,13 +18,13 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   bgColor,
   iconColor,
 }) => (
-  <div className={`bg-white rounded-xl shadow-lg p-6 border-l-4 ${borderColor}`}>
+  <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 ${borderColor} transition-colors`}>
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-gray-600 text-sm font-medium">{title}</p>
-        <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
+        <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">{title}</p>
+        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{value}</p>
       </div>
-      <div className={`${bgColor} rounded-full p-4`}>
+      <div className={`${bgColor} dark:bg-gray-700 rounded-full p-4 transition-colors`}>
         <div className={iconColor}>{icon}</div>
       </div>
     </div>

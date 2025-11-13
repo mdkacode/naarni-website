@@ -2,6 +2,7 @@
 import React from "react";
 import { Table } from "antd";
 import type { TableProps, ColumnType } from "antd/es/table";
+import { useTheme } from "../contexts/ThemeContext";
 
 export interface DataTableColumn<T = any> extends ColumnType<T> {
   key: string;
@@ -38,8 +39,11 @@ export const DataTable = <T extends Record<string, any>>({
   bordered = false,
   className = "",
 }: DataTableProps<T>) => {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
-    <div className={`${className}`}>
+    <div className={`${className} ${isDark ? "dark" : ""}`}>
       <Table<T>
         dataSource={data}
         columns={columns}

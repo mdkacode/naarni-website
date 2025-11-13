@@ -1,10 +1,13 @@
 // Users Management Page
 import React, { useState } from "react";
-import { Row, Col, Card } from "antd";
+import { Row, Col, Button } from "antd";
 import { useAuth } from "../hooks/useAuth";
 import { useUsers } from "../hooks/useUsers";
 import { useOrganizations } from "../hooks/useOrganizations";
-import { Sidebar } from "../components/Sidebar";
+import { PageLayout } from "../components/PageLayout";
+import { PageHeader } from "../components/PageHeader";
+import { PageContent } from "../components/PageContent";
+import { LoadingState, ErrorState, EmptyState } from "../components/PageStates";
 import { UserList } from "../components/UserList";
 import { UserForm } from "../components/UserForm";
 import { StatsCard } from "../components/StatsCard";
@@ -18,37 +21,10 @@ const STATS_ICONS = {
   ),
 };
 
-const LoadingState = () => (
-  <div className="flex justify-center items-center py-20">
-    <div className="text-center">
-      <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-      <p className="text-gray-600">Loading users...</p>
-    </div>
-  </div>
-);
-
-const ErrorState = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
-  <div className="p-6">
-    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-      {error}
-    </div>
-    <button
-      onClick={onRetry}
-      className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-    >
-      Retry
-    </button>
-  </div>
-);
-
-const EmptyState = () => (
-  <div className="text-center py-20">
-    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-    </svg>
-    <h3 className="mt-2 text-sm font-medium text-gray-900">No users</h3>
-    <p className="mt-1 text-sm text-gray-500">Get started by creating a new user.</p>
-  </div>
+const EMPTY_STATE_ICON = (
+  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+  </svg>
 );
 
 export const Users: React.FC = () => {
@@ -128,46 +104,30 @@ export const Users: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex">
-      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+    <PageLayout
+      sidebarOpen={sidebarOpen}
+      onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+    >
+      <PageHeader
+        title="User Management"
+        description="Manage and view all users"
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        actions={
+          !showForm ? (
+            <Button
+              type="primary"
+              size="large"
+              onClick={handleCreate}
+              className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-sm sm:text-base"
+            >
+              Create New User
+            </Button>
+          ) : undefined
+        }
+      />
 
-      <div className="flex-1 lg:ml-64 transition-all duration-300">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
-          <div className="px-4 sm:px-6 lg:px-8 py-4">
-            <Row gutter={[16, 16]} align="middle" justify="space-between">
-              <Col xs={24} sm={24} md={16} lg={18}>
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                  </button>
-                  <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-[#1E40AF]">User Management</h1>
-                    <p className="text-sm sm:text-base text-gray-600 mt-1">Manage and view all users</p>
-                  </div>
-                </div>
-              </Col>
-              <Col xs={24} sm={24} md={8} lg={6}>
-                {!showForm && (
-                  <button
-                    onClick={handleCreate}
-                    className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl text-sm sm:text-base"
-                  >
-                    Create New User
-                  </button>
-                )}
-              </Col>
-            </Row>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <PageContent>
           {/* Stats Card */}
           <Row gutter={[16, 16]} className="mb-6 sm:mb-8">
             <Col xs={24} sm={24} md={8} lg={6}>
@@ -186,49 +146,46 @@ export const Users: React.FC = () => {
           <Row gutter={[16, 16]}>
             <Col xs={24}>
               {showForm ? (
-                <Card
-                  id="user-form-card"
-                  title={
-                    <span className="text-xl sm:text-2xl font-bold text-[#1E40AF]">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden transition-colors">
+                  <div className="p-6">
+                    <h2 className="text-xl sm:text-2xl font-bold text-[#1E40AF] dark:text-blue-400 mb-6">
                       {editingUser ? "Edit User" : "Create New User"}
-                    </span>
-                  }
-                  className="shadow-xl"
-                >
-                  <UserForm
-                    user={editingUser || undefined}
-                    organizations={organizations}
-                    onSubmit={handleSubmit}
-                    onCancel={handleCancel}
-                    loading={formLoading}
-                  />
-                </Card>
+                    </h2>
+                    <UserForm
+                      user={editingUser || undefined}
+                      organizations={organizations}
+                      onSubmit={handleSubmit}
+                      onCancel={handleCancel}
+                      loading={formLoading}
+                    />
+                  </div>
+                </div>
               ) : (
-                <Card
-                  title={
-                    <div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-[#1E40AF] mb-1">User List</h2>
-                      <p className="text-sm sm:text-base text-gray-600">Manage and view all users</p>
-                    </div>
-                  }
-                  className="shadow-xl"
-                >
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden transition-colors">
+                  <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-800">
+                    <h2 className="text-2xl font-bold text-[#1E40AF] dark:text-blue-400">User List</h2>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1">Manage and view all users</p>
+                  </div>
+
                   {loading ? (
-                    <LoadingState />
+                    <LoadingState message="Loading users..." />
                   ) : error ? (
                     <ErrorState error={error} onRetry={handleRetry} />
                   ) : users.length === 0 ? (
-                    <EmptyState />
+                    <EmptyState
+                      title="No users"
+                      message="Get started by creating a new user."
+                      icon={EMPTY_STATE_ICON}
+                    />
                   ) : (
                     <UserList users={users} loading={loading} onEdit={handleEdit} />
                   )}
-                </Card>
+                </div>
               )}
             </Col>
           </Row>
-        </div>
-      </div>
-    </div>
+      </PageContent>
+    </PageLayout>
   );
 };
 

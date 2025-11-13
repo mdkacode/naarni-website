@@ -98,26 +98,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full bg-white dark:bg-gray-800 shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 w-64`}
+        } lg:translate-x-0 w-64 transition-colors dark:text-white`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-[#1E40AF]">NaArNi</h2>
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between transition-colors">
+            <h2 className="text-xl font-bold text-[#1E40AF] dark:text-blue-400">NaArNi</h2>
             <button
               onClick={onToggle}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto dark:text-white">
             {SIDEBAR_ITEMS.map((item) => (
               <button
                 key={item.path}
@@ -127,12 +127,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                 }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                   isActive(item.path)
-                    ? "bg-blue-50 text-blue-700 font-semibold"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:!text-white dark:text-white font-semibold"
+                    : "text-gray-700 dark:!text-white dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
                 {item.icon}
-                <span>{item.name}</span>
+                <span className="dark:text-white">{item.name}</span>
               </button>
             ))}
           </nav>

@@ -1,6 +1,6 @@
 // Route Form Component using Ant Design
 import React, { useEffect, useState } from "react";
-import { Form, Input, InputNumber, Select, Button, Row, Col, message, Alert } from "antd";
+import { Form, Input, Select, Button, Row, Col, message, Alert } from "antd";
 import type { Route, RouteCreateRequest, RouteUpdateRequest } from "../types/route";
 import { useCities } from "../hooks/useCities";
 import { useAuth } from "../hooks/useAuth";
@@ -44,8 +44,6 @@ export const RouteForm: React.FC<RouteFormProps> = ({
         endCityId: route.endCityId || undefined,
         startCityName: route.startCityName || "",
         endCityName: route.endCityName || "",
-        distance: route.distance || 0,
-        estimatedDuration: route.estimatedDuration || 0,
         routeType: route.routeType || "TO_FRO",
       });
     } else {
@@ -76,8 +74,8 @@ export const RouteForm: React.FC<RouteFormProps> = ({
         endCityId: endCity.id,
         startCityName: values.startCityName || "",
         endCityName: values.endCityName || "",
-        distance: values.distance || 0,
-        estimatedDuration: values.estimatedDuration || 0,
+        distance: 0,
+        estimatedDuration: 0,
         routeType: values.routeType || "TO_FRO",
       };
       
@@ -147,21 +145,6 @@ export const RouteForm: React.FC<RouteFormProps> = ({
               <Option value="ONE_WAY">One Way</Option>
               <Option value="TO_FRO">To & Fro</Option>
             </Select>
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Row gutter={[16, 0]}>
-        <Col xs={24}>
-          <Form.Item
-            label="Description"
-            name="description"
-          >
-            <TextArea 
-              rows={3} 
-              placeholder="Route description (e.g., Bangalore to Chennai)" 
-              size="large"
-            />
           </Form.Item>
         </Col>
       </Row>
@@ -259,33 +242,15 @@ export const RouteForm: React.FC<RouteFormProps> = ({
       </Row>
 
       <Row gutter={[16, 0]}>
-        <Col xs={24} sm={24} md={12}>
+        <Col xs={24}>
           <Form.Item
-            label="Distance (km)"
-            name="distance"
-            rules={[{ required: true, message: "Please enter distance" }]}
+            label="Description"
+            name="description"
           >
-            <InputNumber 
-              className="w-full" 
-              placeholder="15.5" 
+            <TextArea 
+              rows={3} 
+              placeholder="Route description (e.g., Bangalore to Chennai)" 
               size="large"
-              min={0}
-              step={0.1}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} sm={24} md={12}>
-          <Form.Item
-            label="Estimated Duration (minutes)"
-            name="estimatedDuration"
-            rules={[{ required: true, message: "Please enter estimated duration" }]}
-          >
-            <InputNumber 
-              className="w-full" 
-              placeholder="45" 
-              size="large"
-              min={0}
             />
           </Form.Item>
         </Col>
