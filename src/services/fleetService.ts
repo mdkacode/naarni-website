@@ -1,11 +1,27 @@
 // Fleet API Service
 import type { FleetListResponse } from "../types/fleet";
 import { fetchWithAuth } from "../utils/api";
-// import { FleetListResponse } from "../types/fleet";
+
+export interface FleetCreateRequest {
+  name: string;
+  description?: string;
+  organizationId: number;
+  financierOrganizationId?: number;
+  contactNumber?: string;
+  email?: string;
+  isOperator?: boolean;
+}
 
 export const fleetService = {
   getFleets: async (token: string, page: number = 0, limit: number = 20): Promise<FleetListResponse> => {
     return fetchWithAuth<FleetListResponse>(`/fleets?page=${page}&limit=${limit}`, token);
+  },
+  
+  createFleet: async (token: string, data: FleetCreateRequest): Promise<any> => {
+    return fetchWithAuth(`/fleets`, token, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   },
   
   extractFleetData: (response: FleetListResponse) => ({

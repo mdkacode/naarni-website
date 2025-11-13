@@ -12,6 +12,7 @@ interface UseFleetsReturn {
   totalPages: number;
   totalElements: number;
   fetchFleets: (page: number) => Promise<void>;
+  createFleet: (data: any) => Promise<void>;
 }
 
 export const useFleets = (token: string | null): UseFleetsReturn => {
@@ -47,6 +48,19 @@ export const useFleets = (token: string | null): UseFleetsReturn => {
     }
   };
 
+  const createFleet = async (data: any) => {
+    if (!token) throw new Error("No token available");
+    
+    setError("");
+    try {
+      await fleetService.createFleet(token, data);
+      await fetchFleets(currentPage); // Refresh list
+    } catch (err: any) {
+      setError(err.message || "Failed to create fleet");
+      throw err;
+    }
+  };
+
   useEffect(() => {
     if (token) {
       fetchFleets(0);
@@ -61,6 +75,7 @@ export const useFleets = (token: string | null): UseFleetsReturn => {
     totalPages,
     totalElements,
     fetchFleets,
+    createFleet,
   };
 };
 
