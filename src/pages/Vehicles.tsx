@@ -51,7 +51,7 @@ const EmptyState = () => (
 
 const Vehicles: React.FC = () => {
   const { token, logout } = useAuth();
-  const { vehicles, loading, error, fetchVehicles, createVehicle, associateFleet, disassociateFleet } = useVehicles(token);
+  const { vehicles, loading, error, fetchVehicles, createVehicle, updateVehicle, associateFleet, disassociateFleet, associateRoute, disassociateRoute } = useVehicles(token);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -97,6 +97,25 @@ const Vehicles: React.FC = () => {
 
   const handleDisassociate = async (vehicleId: number) => {
     await disassociateFleet(vehicleId);
+    fetchVehicles(); // Refresh the list
+  };
+
+  const handleUpdate = async (vehicleId: number, data: Partial<Vehicle>) => {
+    await updateVehicle(vehicleId, data);
+    // Update the selected vehicle in state to reflect changes
+    if (selectedVehicle?.id === vehicleId) {
+      setSelectedVehicle({ ...selectedVehicle, ...data });
+    }
+    fetchVehicles(); // Refresh the list
+  };
+
+  const handleAssociateRoute = async (vehicleId: number, routeId: number, notes?: string) => {
+    await associateRoute(vehicleId, routeId, notes);
+    fetchVehicles(); // Refresh the list
+  };
+
+  const handleDisassociateRoute = async (vehicleId: number, routeId: number, reason?: string) => {
+    await disassociateRoute(vehicleId, routeId, reason);
     fetchVehicles(); // Refresh the list
   };
 
@@ -195,8 +214,11 @@ const Vehicles: React.FC = () => {
         visible={detailsModalVisible}
         vehicle={selectedVehicle}
         onCancel={handleDetailsModalCancel}
+        onUpdate={handleUpdate}
         onAssociate={handleAssociate}
         onDisassociate={handleDisassociate}
+        onAssociateRoute={handleAssociateRoute}
+        onDisassociateRoute={handleDisassociateRoute}
       />
     </div>
   );

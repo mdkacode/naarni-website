@@ -1,6 +1,7 @@
 // Cities Management Page
 import React, { useState } from "react";
-import { Row, Col, Card, message } from "antd";
+import { Row, Col, Card, message, Pagination, Input } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/useAuth";
 import { useCities } from "../hooks/useCities";
 import { Sidebar } from "../components/Sidebar";
@@ -54,7 +55,7 @@ const EmptyState = () => (
 
 export const Cities: React.FC = () => {
   const { token, logout } = useAuth();
-  const { cities, loading, error, fetchCities, createCity, updateCity, deleteCity } = useCities(token);
+  const { cities, loading, error, pagination, searchQuery, setSearchQuery, fetchCities, createCity, updateCity, deleteCity } = useCities(token);
   const [showForm, setShowForm] = useState(false);
   const [editingCity, setEditingCity] = useState<City | null>(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -116,7 +117,15 @@ export const Cities: React.FC = () => {
   };
 
   const handleRetry = () => {
-    fetchCities();
+    fetchCities(pagination.page, pagination.size, searchQuery || undefined);
+  };
+
+  const handlePageChange = (page: number, pageSize: number) => {
+    fetchCities(page - 1, pageSize, searchQuery || undefined); // API uses 0-based indexing, Ant Design uses 1-based
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   return (
@@ -173,7 +182,7 @@ export const Cities: React.FC = () => {
             <Col xs={24} sm={12} md={8}>
               <StatsCard
                 title="Total Cities"
-                value={cities.length}
+                value={pagination.totalElements}
                 icon={STATS_ICONS.cities}
                 borderColor="border-blue-500"
                 bgColor="bg-blue-100"
@@ -198,8 +207,22 @@ export const Cities: React.FC = () => {
           ) : (
             <Card className="shadow-xl">
               <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
-                <h2 className="text-2xl font-bold text-[#1E40AF]">City List</h2>
-                <p className="text-gray-600 mt-1">Manage and view all cities</p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-[#1E40AF]">City List</h2>
+                    <p className="text-gray-600 mt-1">Manage and view all cities</p>
+                  </div>
+                  <div className="w-full sm:w-64">
+                    <Input
+                      placeholder="Search cities..."
+                      prefix={<SearchOutlined className="text-gray-400" />}
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      allowClear
+                      className="w-full"
+                    />
+                  </div>
+                </div>
               </div>
 
               {loading ? (
@@ -209,12 +232,29 @@ export const Cities: React.FC = () => {
               ) : cities.length === 0 ? (
                 <EmptyState />
               ) : (
-                <CityList
-                  cities={cities}
-                  loading={loading}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
+                <>
+                  <CityList
+                    cities={cities}
+                    loading={loading}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                  {pagination.totalPages > 1 && (
+                    <div className="mt-6 flex justify-center pb-4">
+                      <Pagination
+                        current={pagination.page + 1} // Convert 0-based to 1-based for Ant Design
+                        pageSize={pagination.size}
+                        total={pagination.totalElements}
+                        showSizeChanger
+                        showQuickJumper
+                        showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} cities`}
+                        onChange={handlePageChange}
+                        onShowSizeChange={handlePageChange}
+                        pageSizeOptions={['10', '20', '50', '100']}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </Card>
           )}

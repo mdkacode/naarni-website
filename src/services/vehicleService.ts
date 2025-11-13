@@ -44,6 +44,14 @@ export const vehicleService = {
     });
     return response.body || response;
   },
+
+  updateVehicle: async (token: string, vehicleId: number, data: Partial<Vehicle>): Promise<Vehicle> => {
+    const response = await fetchWithAuth<any>(`/vehicles/${vehicleId}`, token, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+    return response.body || response;
+  },
   
   associateFleet: async (token: string, vehicleId: number, fleetId: number): Promise<void> => {
     await fetchWithAuth<any>(`/vehicles/${vehicleId}/associate-fleet/${fleetId}`, token, {
@@ -55,6 +63,56 @@ export const vehicleService = {
     await fetchWithAuth<any>(`/vehicles/${vehicleId}/disassociate-fleet`, token, {
       method: "POST",
     });
+  },
+
+  associateRoute: async (token: string, vehicleId: number, routeId: number, notes?: string): Promise<void> => {
+    let url = `/vehicles/associate-route?vehicleId=${vehicleId}&routeId=${routeId}`;
+    if (notes) {
+      url += `&notes=${encodeURIComponent(notes)}`;
+    }
+    await fetchWithAuth<any>(url, token, {
+      method: "POST",
+    });
+  },
+
+  disassociateRoute: async (token: string, vehicleId: number, routeId: number, reason?: string): Promise<void> => {
+    let url = `/vehicles/disassociate-route?vehicleId=${vehicleId}&routeId=${routeId}`;
+    if (reason) {
+      url += `&reason=${encodeURIComponent(reason)}`;
+    }
+    await fetchWithAuth<any>(url, token, {
+      method: "POST",
+    });
+  },
+
+  getVehicleFilter: async (token: string, filterRequest: VehicleFilterRequest): Promise<VehicleListResponse> => {
+    const filterData: VehicleFilterRequest = {
+      ...filterRequest,
+      select: filterRequest.select || ["FLEET_ID", "OPERATOR_ID", "ROUTE_ID", "DEVICE_ID", "VEHICLE", "FLEET", "ROUTE", "DEVICE"]
+    };
+    
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/vehicles/filter`,
+        filterData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error("UNAUTHORIZED");
+      }
+      throw new Error(
+        error.response?.data?.message || 
+        error.message || 
+        "Failed to fetch vehicle filter data"
+      );
+    }
   },
   
   extractVehicleData: (response: VehicleListResponse): Vehicle[] => {

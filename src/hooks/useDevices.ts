@@ -1,7 +1,7 @@
 // Custom Hook for Device Management
 import { useState, useEffect } from "react";
 import { deviceService } from "../services/deviceService";
-import type { VehicleDevice } from "../types/device";
+import type { VehicleDevice, DeviceCreateRequest } from "../types/device";
 
 interface UseDevicesReturn {
   devices: VehicleDevice[];
@@ -11,6 +11,7 @@ interface UseDevicesReturn {
   totalPages: number;
   totalElements: number;
   fetchDevices: (page: number) => Promise<void>;
+  createDevice: (data: DeviceCreateRequest) => Promise<void>;
 }
 
 export const useDevices = (token: string | null): UseDevicesReturn => {
@@ -46,6 +47,19 @@ export const useDevices = (token: string | null): UseDevicesReturn => {
     }
   };
 
+  const createDevice = async (data: DeviceCreateRequest) => {
+    if (!token) throw new Error("No token available");
+    
+    setError("");
+    try {
+      await deviceService.createDevice(token, data);
+      await fetchDevices(currentPage); // Refresh list with current page
+    } catch (err: any) {
+      setError(err.message || "Failed to create device");
+      throw err;
+    }
+  };
+
   useEffect(() => {
     if (token) {
       fetchDevices(0);
@@ -60,6 +74,7 @@ export const useDevices = (token: string | null): UseDevicesReturn => {
     totalPages,
     totalElements,
     fetchDevices,
+    createDevice,
   };
 };
 

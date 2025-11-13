@@ -9,8 +9,11 @@ interface UseVehiclesReturn {
   error: string;
   fetchVehicles: (filterRequest?: VehicleFilterRequest) => Promise<void>;
   createVehicle: (data: Partial<Vehicle>) => Promise<void>;
+  updateVehicle: (vehicleId: number, data: Partial<Vehicle>) => Promise<void>;
   associateFleet: (vehicleId: number, fleetId: number) => Promise<void>;
   disassociateFleet: (vehicleId: number) => Promise<void>;
+  associateRoute: (vehicleId: number, routeId: number, notes?: string) => Promise<void>;
+  disassociateRoute: (vehicleId: number, routeId: number, reason?: string) => Promise<void>;
 }
 
 export const useVehicles = (token: string | null): UseVehiclesReturn => {
@@ -51,6 +54,19 @@ export const useVehicles = (token: string | null): UseVehiclesReturn => {
     }
   };
 
+  const updateVehicle = async (vehicleId: number, data: Partial<Vehicle>) => {
+    if (!token) throw new Error("No token available");
+    
+    setError("");
+    try {
+      await vehicleService.updateVehicle(token, vehicleId, data);
+      await fetchVehicles(); // Refresh list
+    } catch (err: any) {
+      setError(err.message || "Failed to update vehicle");
+      throw err;
+    }
+  };
+
   const associateFleet = async (vehicleId: number, fleetId: number) => {
     if (!token) throw new Error("No token available");
     
@@ -77,6 +93,32 @@ export const useVehicles = (token: string | null): UseVehiclesReturn => {
     }
   };
 
+  const associateRoute = async (vehicleId: number, routeId: number, notes?: string) => {
+    if (!token) throw new Error("No token available");
+    
+    setError("");
+    try {
+      await vehicleService.associateRoute(token, vehicleId, routeId, notes);
+      await fetchVehicles(); // Refresh list
+    } catch (err: any) {
+      setError(err.message || "Failed to associate route");
+      throw err;
+    }
+  };
+
+  const disassociateRoute = async (vehicleId: number, routeId: number, reason?: string) => {
+    if (!token) throw new Error("No token available");
+    
+    setError("");
+    try {
+      await vehicleService.disassociateRoute(token, vehicleId, routeId, reason);
+      await fetchVehicles(); // Refresh list
+    } catch (err: any) {
+      setError(err.message || "Failed to disassociate route");
+      throw err;
+    }
+  };
+
   useEffect(() => {
     if (token) {
       fetchVehicles();
@@ -89,8 +131,11 @@ export const useVehicles = (token: string | null): UseVehiclesReturn => {
     error,
     fetchVehicles,
     createVehicle,
+    updateVehicle,
     associateFleet,
     disassociateFleet,
+    associateRoute,
+    disassociateRoute,
   };
 };
 

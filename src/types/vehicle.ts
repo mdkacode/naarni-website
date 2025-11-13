@@ -27,6 +27,8 @@ export interface VehicleFilterRequest {
     operatorIds?: number[];
     fleetIds?: number[];
     routeIds?: number[];
+    registrationNumbers?: string[];
+    hasActiveDevice?: boolean;
     [key: string]: any;
   };
   select?: string[];
@@ -38,10 +40,22 @@ export interface VehicleListResponse {
     fleets?: any[];
     devices?: any[];
     routes?: any[];
+    vehicleIds?: number[];
+    vehicleToFleetId?: { [key: string]: number };
+    vehicleToOperatorIds?: { [key: string]: { [key: string]: boolean } };
+    vehicleToDeviceIds?: { [key: string]: { [key: string]: boolean } };
+    vehicleToActiveDeviceIds?: { [key: string]: number };
+    vehicleToActiveVendorDeviceIds?: { [key: string]: string };
+    vehicleToRouteIds?: { [key: string]: { [key: string]: boolean } };
+    page?: any;
     [key: string]: any;
   };
   vehicles?: Vehicle[];
   content?: Vehicle[];
+  statusCode?: number;
+  success?: boolean;
+  errorMessage?: string | null;
+  code?: string | null;
   [key: string]: any;
 }
 

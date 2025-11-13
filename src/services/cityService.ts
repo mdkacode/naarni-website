@@ -3,8 +3,12 @@ import { fetchWithAuth } from "../utils/api";
 import type { City, CityCreateRequest, CityUpdateRequest, CityListResponse, CityResponse } from "../types/city";
 
 export const cityService = {
-  getCities: async (token: string): Promise<CityListResponse> => {
-    const response = await fetchWithAuth<CityListResponse>("/cities", token);
+  getCities: async (token: string, page: number = 0, size: number = 20, search?: string): Promise<CityListResponse> => {
+    let url = `/cities?page=${page}&size=${size}`;
+    if (search && search.trim()) {
+      url += `&search=${encodeURIComponent(search.trim())}`;
+    }
+    const response = await fetchWithAuth<CityListResponse>(url, token);
     return response;
   },
   
@@ -40,7 +44,11 @@ export const cityService = {
     if (Array.isArray(response)) {
       return response;
     }
-    // Handle nested structure: response.body
+    // Handle paginated structure: response.body.content
+    if (response.body?.content && Array.isArray(response.body.content)) {
+      return response.body.content;
+    }
+    // Handle nested structure: response.body (array)
     if (response.body && Array.isArray(response.body)) {
       return response.body;
     }
@@ -49,6 +57,31 @@ export const cityService = {
       return response.content;
     }
     return [];
+  },
+
+  extractPaginationData: (response: CityListResponse) => {
+    if (response.body) {
+      return {
+        page: response.body.page ?? 0,
+        size: response.body.size ?? 20,
+        totalElements: response.body.totalElements ?? 0,
+        totalPages: response.body.totalPages ?? 0,
+        first: response.body.first ?? false,
+        last: response.body.last ?? false,
+        hasNext: response.body.hasNext ?? false,
+        hasPrevious: response.body.hasPrevious ?? false,
+      };
+    }
+    return {
+      page: 0,
+      size: 20,
+      totalElements: 0,
+      totalPages: 0,
+      first: true,
+      last: true,
+      hasNext: false,
+      hasPrevious: false,
+    };
   },
 };
 

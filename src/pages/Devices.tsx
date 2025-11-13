@@ -1,10 +1,13 @@
 import React, { useState } from "react";
+import { Card, message } from "antd";
 import { useAuth } from "../hooks/useAuth";
 import { useDevices } from "../hooks/useDevices";
 import { Sidebar } from "../components/Sidebar";
 import { DeviceList } from "../components/DeviceList";
+import { DeviceForm } from "../components/DeviceForm";
 import { StatsCard } from "../components/StatsCard";
 import { Pagination } from "../components/Pagination";
+import type { DeviceCreateRequest } from "../types/device";
 
 const STATS_ICONS = {
   devices: (
@@ -59,8 +62,10 @@ const EmptyState = () => (
 
 const Devices: React.FC = () => {
   const { token, logout } = useAuth();
-  const { devices, loading, error, currentPage, totalPages, totalElements, fetchDevices } = useDevices(token);
+  const { devices, loading, error, currentPage, totalPages, totalElements, fetchDevices, createDevice } = useDevices(token);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
 
   const handlePageChange = (page: number) => {
     fetchDevices(page);
@@ -68,6 +73,29 @@ const Devices: React.FC = () => {
 
   const handleRetry = () => {
     fetchDevices(currentPage);
+  };
+
+  const handleCreate = () => {
+    setShowForm(true);
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+  };
+
+  const handleSubmit = async (data: DeviceCreateRequest) => {
+    setFormLoading(true);
+    try {
+      await createDevice(data);
+      message.success("Device created successfully");
+      setShowForm(false);
+    } catch (err: any) {
+      console.error("Error creating device:", err);
+      // Error is handled by DeviceForm component
+      throw err;
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   return (
@@ -93,12 +121,22 @@ const Devices: React.FC = () => {
                   <p className="text-gray-600 mt-1">Vehicle Device Management</p>
                 </div>
               </div>
-              <button
-                onClick={logout}
-                className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
-              >
-                Logout
-              </button>
+              <div className="flex items-center space-x-4">
+                {!showForm && (
+                  <button
+                    onClick={handleCreate}
+                    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    + Create Device
+                  </button>
+                )}
+                <button
+                  onClick={logout}
+                  className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -133,8 +171,20 @@ const Devices: React.FC = () => {
             />
           </div>
 
-          {/* Device List */}
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* Device Form or List */}
+          {showForm ? (
+            <Card id="device-form-card" className="shadow-xl">
+              <h2 className="text-2xl font-bold text-[#1E40AF] mb-6">
+                Create New Device
+              </h2>
+              <DeviceForm
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
+                loading={formLoading}
+              />
+            </Card>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
               <h2 className="text-2xl font-bold text-[#1E40AF]">Device List</h2>
               <p className="text-gray-600 mt-1">Manage and view all vehicle devices</p>
@@ -156,7 +206,8 @@ const Devices: React.FC = () => {
                 />
               </>
             )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
