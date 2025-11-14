@@ -150,6 +150,20 @@ export const vehicleService = {
     const fleets = response.body?.fleets || [];
     const fleetMap = new Map(fleets.map((fleet: any) => [fleet.id, fleet]));
     
+    // Extract devices array to map device information
+    const devices = response.body?.devices || [];
+    const deviceMap = new Map(devices.map((device: any) => [device.id, device]));
+    
+    // Extract routes array to map route information
+    const routes = response.body?.routes || [];
+    const routeMap = new Map(routes.map((route: any) => [route.id, route]));
+    
+    // Extract vehicle to device mappings
+    const vehicleToActiveDeviceIds = response.body?.vehicleToActiveDeviceIds || {};
+    const vehicleToDeviceIds = response.body?.vehicleToDeviceIds || {};
+    const vehicleToFleetId = response.body?.vehicleToFleetId || {};
+    const vehicleToRouteIds = response.body?.vehicleToRouteIds || {};
+    
     // Handle nested structure: response.body.vehicles
     let vehicles: Vehicle[] = [];
     if (response.body?.vehicles) {
@@ -162,12 +176,18 @@ export const vehicleService = {
       vehicles = response.content;
     }
     
-    // Map fleet names to vehicles
+    // Map fleet names, routes, and device information to vehicles
     return vehicles.map((vehicle) => {
-      if (vehicle.fleetId && fleetMap.has(vehicle.fleetId)) {
-        const fleet = fleetMap.get(vehicle.fleetId);
-        return {
-          ...vehicle,
+      let enrichedVehicle = { ...vehicle };
+      const vehicleIdStr = String(vehicle.id || '');
+      
+      // Map fleet information from vehicleToFleetId mapping
+      const mappedFleetId = vehicleToFleetId[vehicleIdStr] || vehicle.fleetId;
+      if (mappedFleetId && fleetMap.has(mappedFleetId)) {
+        const fleet = fleetMap.get(mappedFleetId);
+        enrichedVehicle = {
+          ...enrichedVehicle,
+          fleetId: mappedFleetId,
           fleet: {
             ...vehicle.fleet,
             id: fleet.id,
@@ -177,7 +197,102 @@ export const vehicleService = {
           },
         };
       }
-      return vehicle;
+      
+      // Map route information from vehicleToRouteIds mapping
+      const vehicleRouteIds = vehicleToRouteIds[vehicleIdStr];
+      if (vehicleRouteIds && typeof vehicleRouteIds === 'object') {
+        // Find the first active route (where value is true)
+        const activeRouteId = Object.keys(vehicleRouteIds).find(
+          (routeId) => vehicleRouteIds[routeId] === true
+        );
+        if (activeRouteId) {
+          const route = routeMap.get(Number(activeRouteId));
+          if (route) {
+            enrichedVehicle = {
+              ...enrichedVehicle,
+              routeId: route.id,
+              route: {
+                ...vehicle.route,
+                id: route.id,
+                name: route.name,
+                startCityName: route.startCityName,
+                endCityName: route.endCityName,
+                startCityId: route.startCityId,
+                endCityId: route.endCityId,
+              },
+            };
+          }
+        }
+      }
+      
+      // Map device information - check both active and inactive devices
+      const activeDeviceId = vehicleToActiveDeviceIds[vehicleIdStr];
+      const vehicleDeviceIds = vehicleToDeviceIds[vehicleIdStr];
+      
+      // First, try to get active device
+      if (activeDeviceId) {
+        const device = deviceMap.get(activeDeviceId) || deviceMap.get(Number(activeDeviceId));
+        if (device) {
+          enrichedVehicle = {
+            ...enrichedVehicle,
+            deviceId: device.id || device.deviceId || activeDeviceId,
+            deviceStatus: 'ACTIVE',
+            device: {
+              ...vehicle.device,
+              id: device.id || device.deviceId,
+              deviceId: device.deviceId || device.id,
+              deviceType: device.deviceType,
+              manufacturer: device.manufacturer,
+              model: device.model,
+              serialNumber: device.serialNumber,
+              status: device.status,
+            },
+          };
+        } else {
+          enrichedVehicle = {
+            ...enrichedVehicle,
+            deviceId: activeDeviceId,
+            deviceStatus: 'ACTIVE',
+          };
+        }
+      } else if (vehicleDeviceIds && typeof vehicleDeviceIds === 'object') {
+        // Check for any device (active or inactive)
+        const deviceEntries = Object.entries(vehicleDeviceIds);
+        if (deviceEntries.length > 0) {
+          // Find the first device (prefer active, but show inactive if that's all we have)
+          const activeEntry = deviceEntries.find(([_, isActive]) => isActive === true);
+          const deviceEntry = activeEntry || deviceEntries[0];
+          const [deviceIdStr, isActive] = deviceEntry;
+          const deviceId = Number(deviceIdStr);
+          const device = deviceMap.get(deviceId);
+          
+          if (device) {
+            enrichedVehicle = {
+              ...enrichedVehicle,
+              deviceId: device.id || device.deviceId || deviceId,
+              deviceStatus: isActive ? 'ACTIVE' : 'INACTIVE',
+              device: {
+                ...vehicle.device,
+                id: device.id || device.deviceId,
+                deviceId: device.deviceId || device.id,
+                deviceType: device.deviceType,
+                manufacturer: device.manufacturer,
+                model: device.model,
+                serialNumber: device.serialNumber,
+                status: device.status,
+              },
+            };
+          } else {
+            enrichedVehicle = {
+              ...enrichedVehicle,
+              deviceId: deviceId,
+              deviceStatus: isActive ? 'ACTIVE' : 'INACTIVE',
+            };
+          }
+        }
+      }
+      
+      return enrichedVehicle;
     });
   },
 };

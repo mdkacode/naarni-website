@@ -49,6 +49,38 @@ const getVehicleColumns = (
     },
   },
   {
+    key: "route",
+    title: "Route",
+    dataIndex: "routeId",
+    render: (value, record) => {
+      // Check if route object exists with city names
+      if (record.route?.startCityName && record.route?.endCityName) {
+        return `${record.route.startCityName} to ${record.route.endCityName}`;
+      }
+      // Fallback to routeId if route info not available
+      return value ? `Route ID: ${value}` : "N/A";
+    },
+  },
+  {
+    key: "deviceId",
+    title: "Device ID",
+    dataIndex: "deviceId",
+    render: (value, record) => {
+      // Check if device object exists with id or deviceId
+      const deviceId = record.device?.id || record.device?.deviceId || value;
+      const deviceStatus = record.deviceStatus || record.device?.status;
+      
+      if (deviceId) {
+        // Show device ID with status if inactive
+        if (deviceStatus === 'INACTIVE' || deviceStatus === 'inactive') {
+          return `${deviceId} (Inactive)`;
+        }
+        return deviceId;
+      }
+      return "N/A";
+    },
+  },
+  {
     key: "createdAt",
     title: "Created At",
     dataIndex: "createdAt",

@@ -139,8 +139,7 @@ export const VehicleDetailsModal: React.FC<VehicleDetailsModalProps> = ({
     try {
       const filterRequest: VehicleFilterRequest = {
         filterContext: {
-          registrationNumbers: [vehicle.registrationNumber],
-          hasActiveDevice: true,
+          registrationNumbers: [vehicle.registrationNumber]
         },
         select: ["FLEET_ID", "OPERATOR_ID", "ROUTE_ID", "DEVICE_ID", "VEHICLE", "FLEET", "ROUTE", "DEVICE"]
       };

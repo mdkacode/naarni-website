@@ -31,7 +31,36 @@ export const useVehicles = (token: string | null): UseVehiclesReturn => {
     setError("");
 
     try {
-      const response = await vehicleService.getVehicles(token, filterRequest);
+      // If no filter request provided, fetch all vehicles first to get registration numbers
+      let request = filterRequest;
+      if (!request) {
+        // First fetch to get all vehicles
+        const initialResponse = await vehicleService.getVehicles(token);
+        const initialVehicles = vehicleService.extractVehicleData(initialResponse);
+        
+        // Extract all registration numbers
+        const registrationNumbers = initialVehicles
+          .map(v => v.registrationNumber)
+          .filter((reg): reg is string => !!reg);
+        
+        // If we have registration numbers, fetch with filter to get enriched data
+        if (registrationNumbers.length > 0) {
+          request = {
+            filterContext: {
+              registrationNumbers: registrationNumbers,
+            },
+            select: ["FLEET_ID", "OPERATOR_ID", "ROUTE_ID", "DEVICE_ID", "VEHICLE", "FLEET", "ROUTE", "DEVICE"]
+          };
+        }
+      } else {
+        // Ensure select array is included in the request
+        request = {
+          ...request,
+          select: request.select || ["FLEET_ID", "OPERATOR_ID", "ROUTE_ID", "DEVICE_ID", "VEHICLE", "FLEET", "ROUTE", "DEVICE"]
+        };
+      }
+      
+      const response = await vehicleService.getVehicles(token, request);
       const vehicleList = vehicleService.extractVehicleData(response);
       setVehicles(vehicleList);
     } catch (err: any) {
