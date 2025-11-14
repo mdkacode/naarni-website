@@ -60,7 +60,7 @@ export const UserForm: React.FC<UserFormProps> = ({
       if (phoneNumber && !phoneNumber.startsWith("+91")) {
         // Remove any existing + or country code and add +91
         phoneNumber = phoneNumber.replace(/^\+?91\s*/, "").replace(/^\+/, "");
-        phoneNumber = `+91${phoneNumber}`;
+        phoneNumber = `${phoneNumber}`;
       }
       
       if (user) {
