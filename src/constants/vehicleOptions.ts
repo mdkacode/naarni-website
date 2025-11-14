@@ -1,7 +1,7 @@
 // Vehicle Options Constants
 export const VEHICLE_MAKES = ["AZAD"] as const;
 
-export const VEHICLE_MODELS = ["12 CM", "12.5 CM"] as const;
+export const VEHICLE_MODELS = ["AZAD 12 M Luxury Intercity AC Coach", "AZAD 12.5 M Luxury intercity AC Coach - seater cum sleeper"] as const;
 
 export const VEHICLE_STATUSES = [
   "PLUGGED_IN",

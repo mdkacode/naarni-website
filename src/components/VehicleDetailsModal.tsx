@@ -17,8 +17,8 @@ import { vehicleService } from "../services/vehicleService";
 const { Option } = Select;
 
 const MAKE_MODEL_OPTIONS = [
-  { value: "12 CM", label: "12 CM" },
-  { value: "12.5 CM", label: "12.5 CM" },
+  { value: "A_12_M", label: "AZAD 12 M Luxury Intercity AC Coach" },
+  { value: "A_12.5_M", label: "AZAD 12.5 M Luxury intercity AC Coach - seater cum sleeper" },
 ];
 
 interface VehicleDetailsModalProps {
