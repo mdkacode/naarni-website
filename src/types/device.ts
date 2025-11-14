@@ -24,7 +24,7 @@ export interface DeviceCreateRequest {
   deviceType: string;
   manufacturer: string;
   model: string;
-  serialNumber: string;
+  serialNumber?: string;
   firmwareVersion: string;
   status: string;
   isActive: boolean;

@@ -32,7 +32,7 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
         deviceType: "OBD_DEVICE", // Default value
         manufacturer: "BYTEBEAM", // Default value
         model: "GTU-10", // Default value
-        serialNumber: values.serialNumber,
+        // serialNumber: values.serialNumber,
         firmwareVersion: "1.0.0", // Default value
         status: "ACTIVE", // Default value
         isActive: true, // Default value
@@ -100,7 +100,7 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
           <Form.Item
             label="IMEI Number"
             name="serialNumber"
-            rules={[{ required: true, message: "Please enter IMEI number" }]}
+           
           >
             <Input placeholder="e.g., SN123456789" size="large" />
           </Form.Item>
