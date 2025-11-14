@@ -1,6 +1,6 @@
 // Vehicle Table Component using Ant Design
 import React from "react";
-import { Button, Space } from "antd";
+import { Button, Space, Tooltip } from "antd";
 import type { Vehicle } from "../types/vehicle";
 import { formatDate } from "../utils/formatters";
 import { DataTable, type DataTableColumn } from "./DataTable";
@@ -32,7 +32,7 @@ const getVehicleColumns = (
   {
     key: "makeModel",
     title: "Make/Model",
-    render: (_, record) => `${record.make || "N/A"} ${record.model || ""}`.trim(),
+    render: (_, record) => <Tooltip title={`${record.make || "N/A"} ${record.model || ""}`}><p className="text-sm text-yellow-500 truncate max-w-[100px]">{record.make || "N/A"} {record.model || ""}</p></Tooltip>,
   },
   
   {
@@ -66,8 +66,8 @@ const getVehicleColumns = (
     title: "Device ID",
     dataIndex: "deviceId",
     render: (value, record) => {
-      // Check if device object exists with id or deviceId
-      const deviceId = record.device?.id || record.device?.deviceId || value;
+      // Prioritize deviceId field from device object (e.g., "31") over id (e.g., 21)
+      const deviceId = record.device?.deviceId || record.device?.id || value;
       const deviceStatus = record.deviceStatus || record.device?.status;
       
       if (deviceId) {

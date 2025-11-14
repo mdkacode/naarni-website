@@ -233,13 +233,15 @@ export const vehicleService = {
       if (activeDeviceId) {
         const device = deviceMap.get(activeDeviceId) || deviceMap.get(Number(activeDeviceId));
         if (device) {
+          // Use deviceId field from device object (e.g., "31") instead of id (e.g., 21)
+          const displayDeviceId = device.deviceId || device.id || activeDeviceId;
           enrichedVehicle = {
             ...enrichedVehicle,
-            deviceId: device.id || device.deviceId || activeDeviceId,
+            deviceId: displayDeviceId,
             deviceStatus: 'ACTIVE',
             device: {
               ...vehicle.device,
-              id: device.id || device.deviceId,
+              id: device.id,
               deviceId: device.deviceId || device.id,
               deviceType: device.deviceType,
               manufacturer: device.manufacturer,
@@ -267,13 +269,15 @@ export const vehicleService = {
           const device = deviceMap.get(deviceId);
           
           if (device) {
+            // Use deviceId field from device object (e.g., "31") instead of id (e.g., 21)
+            const displayDeviceId = device.deviceId || device.id || deviceId;
             enrichedVehicle = {
               ...enrichedVehicle,
-              deviceId: device.id || device.deviceId || deviceId,
+              deviceId: displayDeviceId,
               deviceStatus: isActive ? 'ACTIVE' : 'INACTIVE',
               device: {
                 ...vehicle.device,
-                id: device.id || device.deviceId,
+                id: device.id,
                 deviceId: device.deviceId || device.id,
                 deviceType: device.deviceType,
                 manufacturer: device.manufacturer,

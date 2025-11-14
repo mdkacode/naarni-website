@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { message, Button } from "antd";
+import React, { useState, useMemo } from "react";
+import { message, Button, Input, Select, Row, Col } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks/useAuth";
 import { useVehicles } from "../hooks/useVehicles";
 import { PageLayout } from "../components/PageLayout";
@@ -34,6 +35,12 @@ const Vehicles: React.FC = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  
+  // Filter states
+  const [searchRegistration, setSearchRegistration] = useState("");
+  const [selectedFleet, setSelectedFleet] = useState<string | undefined>(undefined);
+  const [selectedRoute, setSelectedRoute] = useState<string | undefined>(undefined);
+  const [deviceStatusFilter, setDeviceStatusFilter] = useState<string>("all");
 
   const handleCreate = () => {
     setShowForm(true);
@@ -129,6 +136,67 @@ const Vehicles: React.FC = () => {
     }
   };
 
+  // Extract unique fleets and routes for filter dropdowns
+  const uniqueFleets = useMemo(() => {
+    const fleetMap = new Map<string, string>();
+    vehicles.forEach((vehicle) => {
+      if (vehicle.fleet?.name && vehicle.fleetId) {
+        fleetMap.set(String(vehicle.fleetId), vehicle.fleet.name);
+      }
+    });
+    return Array.from(fleetMap.entries()).map(([id, name]) => ({ id, name }));
+  }, [vehicles]);
+
+  const uniqueRoutes = useMemo(() => {
+    const routeMap = new Map<string, string>();
+    vehicles.forEach((vehicle) => {
+      if (vehicle.route?.startCityName && vehicle.route?.endCityName && vehicle.routeId) {
+        const routeLabel = `${vehicle.route.startCityName} to ${vehicle.route.endCityName}`;
+        routeMap.set(String(vehicle.routeId), routeLabel);
+      }
+    });
+    return Array.from(routeMap.entries()).map(([id, label]) => ({ id, label }));
+  }, [vehicles]);
+
+  // Filter vehicles based on search and filters
+  const filteredVehicles = useMemo(() => {
+    return vehicles.filter((vehicle) => {
+      // Registration number search
+      if (searchRegistration) {
+        const regNumber = vehicle.registrationNumber?.toLowerCase() || "";
+        if (!regNumber.includes(searchRegistration.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // Fleet filter
+      if (selectedFleet && vehicle.fleetId?.toString() !== selectedFleet) {
+        return false;
+      }
+
+      // Route filter
+      if (selectedRoute && vehicle.routeId?.toString() !== selectedRoute) {
+        return false;
+      }
+
+      // Device status filter
+      if (deviceStatusFilter !== "all") {
+        const deviceStatus = vehicle.deviceStatus || vehicle.device?.status;
+        if (deviceStatusFilter === "active" && deviceStatus !== "ACTIVE") {
+          return false;
+        }
+        if (deviceStatusFilter === "inactive" && deviceStatus !== "INACTIVE") {
+          return false;
+        }
+        if (deviceStatusFilter === "no_device" && vehicle.deviceId) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [vehicles, searchRegistration, selectedFleet, selectedRoute, deviceStatusFilter]);
+
   return (
     <PageLayout
       sidebarOpen={sidebarOpen}
@@ -173,6 +241,14 @@ const Vehicles: React.FC = () => {
               bgColor="bg-blue-100"
               iconColor="text-blue-600"
             />
+            <StatsCard
+              title="Filtered Vehicles"
+              value={filteredVehicles.length}
+              icon={STATS_ICONS.vehicles}
+              borderColor="border-green-500"
+              bgColor="bg-green-100"
+              iconColor="text-green-600"
+            />
           </div>
 
           {/* Vehicle List or Form */}
@@ -194,19 +270,77 @@ const Vehicles: React.FC = () => {
                 <p className="text-gray-600 dark:text-gray-400 mt-1">Manage and view all vehicles</p>
               </div>
 
+              {/* Filters */}
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} sm={12} md={6}>
+                    <Input
+                      placeholder="Search by Registration"
+                      prefix={<SearchOutlined />}
+                      value={searchRegistration}
+                      onChange={(e) => setSearchRegistration(e.target.value)}
+                      allowClear
+                    />
+                  </Col>
+                  <Col xs={24} sm={12} md={6}>
+                    <Select
+                      placeholder="Filter by Fleet"
+                      value={selectedFleet}
+                      onChange={setSelectedFleet}
+                      allowClear
+                      style={{ width: "100%" }}
+                    >
+                      {uniqueFleets.map((fleet) => (
+                        <Select.Option key={fleet.id} value={fleet.id}>
+                          {fleet.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Col>
+                  <Col xs={24} sm={12} md={6}>
+                    <Select
+                      placeholder="Filter by Route"
+                      value={selectedRoute}
+                      onChange={setSelectedRoute}
+                      allowClear
+                      style={{ width: "100%" }}
+                    >
+                      {uniqueRoutes.map((route) => (
+                        <Select.Option key={route.id} value={route.id}>
+                          {route.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Col>
+                  <Col xs={24} sm={12} md={6}>
+                    <Select
+                      placeholder="Filter by Device Status"
+                      value={deviceStatusFilter}
+                      onChange={setDeviceStatusFilter}
+                      style={{ width: "100%" }}
+                    >
+                      <Select.Option value="all">All Devices</Select.Option>
+                      <Select.Option value="active">Active Device</Select.Option>
+                      <Select.Option value="inactive">Inactive Device</Select.Option>
+                      <Select.Option value="no_device">No Device</Select.Option>
+                    </Select>
+                  </Col>
+                </Row>
+              </div>
+
               {loading ? (
                 <LoadingState message="Loading vehicles..." />
               ) : error ? (
                 <ErrorState error={error} onRetry={handleRetry} />
-              ) : vehicles.length === 0 ? (
+              ) : filteredVehicles.length === 0 ? (
                 <EmptyState
                   title="No vehicles found"
-                  message="Get started by creating a new vehicle."
+                  message={vehicles.length === 0 ? "Get started by creating a new vehicle." : "No vehicles match your filters."}
                   icon={EMPTY_STATE_ICON}
                 />
               ) : (
                 <VehicleList
-                  vehicles={vehicles}
+                  vehicles={filteredVehicles}
                   loading={loading}
                   onViewDetails={handleViewDetails}
                   onDelete={handleDelete}
