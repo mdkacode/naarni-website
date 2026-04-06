@@ -13,8 +13,8 @@ const pageSEOData = {
     title: 'NaArNi - Electrifying Heavy Commercial Vehicles | Smart EV Solutions',
     description: 'Transform your fleet with NaArNi\'s smart EV solutions. Best-in-class electric buses, financing, charging infrastructure, and maintenance services for fleet operators.',
     keywords: 'electric vehicles, heavy commercial vehicles, EV fleet, electric trucks, electric buses, fleet electrification, EV charging, battery replacement, EV financing, HCV electric vehicles, sustainable transportation, green fleet, electric mobility, NaArNi',
-    canonical: 'https://naarni.com',
-    ogImage: 'https://naarni.com/images/ev-bus.jpg',
+    canonical: 'https://naarni.in',
+    ogImage: 'https://naarni.in/images/ev-bus.jpg',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
@@ -77,8 +77,8 @@ const pageSEOData = {
     title: 'About NaArNi - Leading EV Solutions for Heavy Commercial Vehicles',
     description: 'Learn about NaArNi\'s mission to electrify heavy transport. Founded by experienced entrepreneurs from IIT-Bombay and IIM-Ahmedabad, we\'re building the future of sustainable mobility.',
     keywords: 'NaArNi about, EV company, electric vehicle founders, sustainable transportation, heavy commercial vehicles, fleet electrification, IIT-Bombay, IIM-Ahmedabad, Mozev, Greencell',
-    canonical: 'https://naarni.com/about',
-    ogImage: 'https://naarni.com/images/ev-bus.jpg',
+    canonical: 'https://naarni.in/about',
+    ogImage: 'https://naarni.in/images/ev-bus.jpg',
     breadcrumbs: [
       { name: 'Home', url: '/' },
       { name: 'About', url: '/about' }
@@ -88,8 +88,8 @@ const pageSEOData = {
     title: 'NaArNi Products - Heavy Electric Buses & Trucks for Fleet Operators',
     description: 'Discover NaArNi\'s heavy electric vehicles designed for fleet operators. Best-in-class intercity electric buses with 100+ km range, fast charging, and lowest cost per km.',
     keywords: 'electric buses, heavy electric vehicles, fleet electric vehicles, intercity electric buses, EV fleet, electric commercial vehicles, heavy commercial EVs, NaArNi products',
-    canonical: 'https://naarni.com/products',
-    ogImage: 'https://naarni.com/images/ev-bus.jpg',
+    canonical: 'https://naarni.in/products',
+    ogImage: 'https://naarni.in/images/ev-bus.jpg',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'Product',
@@ -102,19 +102,19 @@ const pageSEOData = {
       'manufacturer': {
         '@type': 'Organization',
         'name': 'NaArNi',
-        'url': 'https://naarni.com'
+        'url': 'https://naarni.in'
       },
       'category': 'Heavy Commercial Vehicle',
       'vehicleType': 'Electric Bus',
       'fuelType': 'Electric',
       'range': '100+ km per charge',
       'chargingTime': '1.5 hours',
-      'image': 'https://naarni.com/images/ev-bus.jpg',
+      'image': 'https://naarni.in/images/ev-bus.jpg',
       'offers': {
         '@type': 'Offer',
         'availability': 'https://schema.org/InStock',
         'priceCurrency': 'INR',
-        'url': 'https://naarni.com/contact'
+        'url': 'https://naarni.in/contact'
       }
     },
     breadcrumbs: [
@@ -126,16 +126,16 @@ const pageSEOData = {
     title: 'Contact NaArNi - Get in Touch for EV Fleet Solutions',
     description: 'Contact NaArNi for product enquiries, fleet electrification support, or to learn more about our electric vehicle solutions. Get expert guidance on EV adoption.',
     keywords: 'contact NaArNi, EV fleet consultation, electric vehicle support, fleet electrification help, NaArNi contact, EV solutions contact',
-    canonical: 'https://naarni.com/contact',
-    ogImage: 'https://naarni.com/images/ev-bus.jpg',
+    canonical: 'https://naarni.in/contact',
+    ogImage: 'https://naarni.in/images/ev-bus.jpg',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'LocalBusiness',
       'name': 'NaArNi',
       'description': 'Leading provider of electric heavy commercial vehicles and comprehensive EV fleet solutions',
-      'url': 'https://naarni.com',
+      'url': 'https://naarni.in',
       'telephone': '+91-XXXXXXXXXX',
-      'email': 'website@naarni.com',
+      'email': 'website@naarni.in',
       'address': {
         '@type': 'PostalAddress',
         'streetAddress': '6th floor, Sakti Statesman, Marathahalli - Sarjapur Outer Ring Rd, Green Glen Layout, Bellandur',
@@ -151,7 +151,7 @@ const pageSEOData = {
       },
       'openingHours': 'Mo-Fr 09:00-18:00',
       'priceRange': '$$',
-      'image': 'https://naarni.com/images/ev-bus.jpg',
+      'image': 'https://naarni.in/images/ev-bus.jpg',
       'sameAs': [
         'https://www.linkedin.com/company/naarni'
       ]
@@ -165,8 +165,8 @@ const pageSEOData = {
     title: 'NaArNi Track Record - Proven Success in Electric Vehicle Industry',
     description: 'Explore NaArNi\'s proven track record in the electric vehicle industry. From Mozev to Greencell acquisition, discover our journey in revolutionizing heavy transport.',
     keywords: 'NaArNi track record, EV industry success, Mozev, Greencell, electric vehicle achievements, fleet electrification history',
-    canonical: 'https://naarni.com/track-record',
-    ogImage: 'https://naarni.com/images/ev-bus.jpg',
+    canonical: 'https://naarni.in/track-record',
+    ogImage: 'https://naarni.in/images/ev-bus.jpg',
     breadcrumbs: [
       { name: 'Home', url: '/' },
       { name: 'Track Record', url: '/track-record' }
@@ -176,8 +176,8 @@ const pageSEOData = {
     title: 'Careers at NaArNi - Join the Electric Vehicle Revolution',
     description: 'Join NaArNi\'s mission to electrify heavy transport. Explore career opportunities in electric vehicle technology, fleet management, and sustainable mobility.',
     keywords: 'NaArNi careers, EV jobs, electric vehicle careers, sustainable mobility jobs, fleet management careers, green technology jobs',
-    canonical: 'https://naarni.com/careers',
-    ogImage: 'https://naarni.com/images/ev-bus.jpg',
+    canonical: 'https://naarni.in/careers',
+    ogImage: 'https://naarni.in/images/ev-bus.jpg',
     breadcrumbs: [
       { name: 'Home', url: '/' },
       { name: 'Careers', url: '/careers' }
@@ -187,8 +187,8 @@ const pageSEOData = {
     title: 'Privacy Policy - NaArNi',
     description: 'NaArNi\'s privacy policy outlining how we collect, use, and protect your personal information.',
     keywords: 'NaArNi privacy policy, data protection, privacy terms',
-    canonical: 'https://naarni.com/privacy-policy',
-    ogImage: 'https://naarni.com/images/ev-bus.jpg',
+    canonical: 'https://naarni.in/privacy-policy',
+    ogImage: 'https://naarni.in/images/ev-bus.jpg',
     breadcrumbs: [
       { name: 'Home', url: '/' },
       { name: 'Privacy Policy', url: '/privacy-policy' }
@@ -198,8 +198,8 @@ const pageSEOData = {
     title: 'Terms of Service - NaArNi',
     description: 'NaArNi\'s terms of service outlining the terms and conditions for using our website and services.',
     keywords: 'NaArNi terms of service, terms and conditions, legal terms',
-    canonical: 'https://naarni.com/terms',
-    ogImage: 'https://naarni.com/images/ev-bus.jpg',
+    canonical: 'https://naarni.in/terms',
+    ogImage: 'https://naarni.in/images/ev-bus.jpg',
     breadcrumbs: [
       { name: 'Home', url: '/' },
       { name: 'Terms of Service', url: '/terms' }

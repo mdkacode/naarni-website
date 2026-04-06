@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://naarni.com/sitemap.xml
+Sitemap: https://naarni.in/sitemap.xml
 
 # Disallow admin or private areas (if any)
 # Disallow: /admin/
@@ -22,4 +22,4 @@ Allow: /
 Crawl-delay: 1
 
 # Host directive for canonical domain
-Host: https://naarni.com
+Host: https://naarni.in

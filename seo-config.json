@@ -1,7 +1,7 @@
 {
   "site": {
     "name": "NaArNi",
-    "url": "https://naarni.com",
+    "url": "https://naarni.in",
     "description": "Leading provider of electric heavy commercial vehicles and comprehensive EV fleet solutions",
     "keywords": "electric vehicles, heavy commercial vehicles, EV fleet, electric trucks, electric buses, fleet electrification, EV charging, battery replacement, EV financing, HCV electric vehicles, sustainable transportation, green fleet, electric mobility, NaArNi",
     "author": "NaArNi",
@@ -20,7 +20,7 @@
     "instagram": null
   },
   "contact": {
-    "email": "website@naarni.com",
+    "email": "website@naarni.in",
     "phone": "+91-XXXXXXXXXX",
     "address": {
       "street": "6th floor, Sakti Statesman, Marathahalli - Sarjapur Outer Ring Rd, Green Glen Layout, Bellandur",
@@ -31,11 +31,11 @@
     }
   },
   "seo": {
-    "defaultImage": "https://naarni.com/images/ev-bus.jpg",
+    "defaultImage": "https://naarni.in/images/ev-bus.jpg",
     "favicon": "/favicon.ico",
     "themeColor": "#3B82F6",
     "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-    "canonicalBase": "https://naarni.com"
+    "canonicalBase": "https://naarni.in"
   },
   "structuredData": {
     "organization": {

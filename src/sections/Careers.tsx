@@ -7,7 +7,7 @@ const Careers = () => (
       <p className="desc">Join Our Team and Drive the Future of Transportation</p>
       <div className="careers-card">
         <p>Founders Staff<br/>Bengaluru, India<br/>3-4 yrs workex</p>
-        <a href="mailto:website@naarni.com" className="btn-primary">Apply Now</a>
+        <a href="mailto:website@naarni.in" className="btn-primary">Apply Now</a>
       </div>
     </div>
   </section>

@@ -55,8 +55,8 @@ const SEOHead: React.FC<SEOHeadProps> = ({
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "NaArNi",
-    "url": "https://naarni.com",
-    "logo": "https://naarni.com/images/ev-bus.jpg",
+    "url": "https://naarni.in",
+    "logo": "https://naarni.in/images/ev-bus.jpg",
     "description": "Leading provider of electric heavy commercial vehicles and comprehensive EV fleet solutions",
     "foundingDate": "2020",
     "industry": "Electric Vehicles",
@@ -71,8 +71,8 @@ const SEOHead: React.FC<SEOHeadProps> = ({
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
-      "email": "website@naarni.com",
-      "url": "https://naarni.com/contact"
+      "email": "website@naarni.in",
+      "url": "https://naarni.in/contact"
     },
     "sameAs": [
       "https://www.linkedin.com/company/naarni"
@@ -83,12 +83,12 @@ const SEOHead: React.FC<SEOHeadProps> = ({
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "NaArNi",
-    "url": "https://naarni.com",
+    "url": "https://naarni.in",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://naarni.com/search?q={search_term_string}"
+        "urlTemplate": "https://naarni.in/search?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     }
@@ -148,7 +148,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
     updateOrCreateMeta('og:type', 'website');
     updateOrCreateMeta('og:site_name', 'NaArNi');
     updateOrCreateMeta('og:locale', 'en_US');
-    updateOrCreateMeta('og:image', 'https://naarni.com/images/ev-bus.jpg');
+    updateOrCreateMeta('og:image', 'https://naarni.in/images/ev-bus.jpg');
     
     // Update Twitter Card tags
     const updateOrCreateTwitterMeta = (name: string, content: string) => {
@@ -164,7 +164,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
     updateOrCreateTwitterMeta('twitter:card', 'summary_large_image');
     updateOrCreateTwitterMeta('twitter:title', title);
     updateOrCreateTwitterMeta('twitter:description', description);
-    updateOrCreateTwitterMeta('twitter:image', 'https://naarni.com/images/ev-bus.jpg');
+    updateOrCreateTwitterMeta('twitter:image', 'https://naarni.in/images/ev-bus.jpg');
     
     // Add robots meta tag
     let robotsMeta = document.querySelector('meta[name="robots"]');

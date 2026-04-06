@@ -141,7 +141,7 @@ const Careers: React.FC = () => {
 //                     </p>
 //                   </div>
 //                   <a
-//                     href="mailto:website@naarni.com"
+//                     href="mailto:website@naarni.in"
 //                     className="mt-4 md:mt-0 bg-[#B8F306] text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-[#A7DC06] transition"
 //                   >
 //                     Apply Now
