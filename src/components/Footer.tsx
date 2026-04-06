@@ -1,5 +1,5 @@
 import React from "react";
-import { Linkedin, Mail, MapPin } from "lucide-react";
+import { Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Footer: React.FC = () => {
@@ -39,14 +39,14 @@ const Footer: React.FC = () => {
             
             {/* Contact info */}
             <div className="mt-6 space-y-3">
-              <div className="flex items-center space-x-3 text-sm opacity-80">
+              <a href="mailto:creds@naarni.com" className="flex items-center space-x-3 text-sm opacity-80 hover:opacity-100">
                 <Mail size={16} className="text-blue-200" />
-                <span>website@naarni.in</span>
-              </div>
-              {/* <div className="flex items-center space-x-3 text-sm opacity-80">
+                <span>creds@naarni.com</span>
+              </a>
+              <a href="tel:+919902459388" className="flex items-center space-x-3 text-sm opacity-80 hover:opacity-100">
                 <Phone size={16} className="text-blue-200" />
-                <span>+91 98765 43210</span>
-              </div> */}
+                <span>+91 9902459388</span>
+              </a>
               <a
   href="https://maps.app.goo.gl/2Jr9k2YNAqFHbjzVA"
   target="_blank"
