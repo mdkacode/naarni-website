@@ -19,15 +19,15 @@ const Home: React.FC = () => {
     const vision2030 = [
       {
         title: "EV as Default Choice",
-        desc: "Fleet operators choose EVs as their primary heavy vehicle option.",
+        desc: "Fleet operators choose EVs as their primary option for buses .",
       },
       {
         title: "Trusted Brand & Ecosystem Leader",
         desc: "NaArNi becomes the most trusted brand for fleet operators and the broader EV ecosystem.",
       },
       {
-        title: "20% Market Share in HCVs",
-        desc: "NaArNi to become a trusted leader in heavy commercial EVs.",
+        title: "20% Market Share ",
+        desc: "NaArNi to become a major player in the eco system",
       },
       // {
       //   title: "Best Value & Reliability",
@@ -92,9 +92,8 @@ const Home: React.FC = () => {
                 Empowering the Future of{" "}
                 <span className="px-3 rounded bg-[#3B82F6] text-white">Heavy EVs</span>
               </h1> */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-snug text-[#1E3A8A]">
-                Electrifying Heavy Commercial Vehicles
-                {/* <span className="px-3 rounded bg-[#3B82F6] text-white">Heavy Commercial Vehicles</span> */}
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-snug text-[#1E3A8A] text-center">
+                Electrifying Intercity Buses
               </h1>
               
               
@@ -205,7 +204,7 @@ const Home: React.FC = () => {
               } max-w-5xl mx-auto px-6`}
             >
               <h2 className="text-3xl sm:text-4xl font-bold text-center text-[#1E3A8A]">
-                Fleet Operators Can Make More Money with EVs,
+                Fleet Operators Can Make More Money with EV Intercity Buses
               </h2>
               <p className="text-center text-lg mt-2 mb-10">
                 But they still have many questions...
@@ -264,33 +263,25 @@ const Home: React.FC = () => {
               }`}
             >
               <h2 className="text-3xl sm:text-4xl font-bold text-center text-[#1E40AF]">
-                We Enable HCV Fleet Operators to Move to Electric
+                We Design, Sell & Maintain Intercity EV Buses
               </h2>
               <p className="text-center mt-2 text-[#111827] max-w-xl mx-auto px-4">
                 NaArNi offers best cost per km, reliability and availability.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto mt-12 px-4">
+              <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto mt-12 px-4">
                 {[
                   {
                     name: "Product",
                     answer: "Best-in-class range & efficiency with proven reliability.",
                     imageAlt: "/images/Bus.png",
                   },
-                  {
-                    name: "Financing",
-                    answer: "Access to long-term and cost-effective financing options.",
-                    imageAlt: "/images/finance.png",
-                  },
+
                   {
                     name: "Maintenance",
                     answer: "Access to High-Voltage AMC through vehicle life.",
                     imageAlt: "/images/maintenance.png",
                   },
-                  {
-                    name: "Charging",
-                    answer: "Access to cost-effective and reliable charging options.",
-                    imageAlt: "/images/charging.png",
-                  },
+
                   {
                     name: "Battery",
                     icon: <Battery className="w-10 h-10" />,
@@ -300,7 +291,7 @@ const Home: React.FC = () => {
                 ].map((item, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl p-6 shadow hover:shadow-xl hover:scale-105 bg-white transition-all duration-300 flex flex-col items-center text-center"
+                    className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[280px] rounded-xl p-6 shadow hover:shadow-xl hover:scale-105 bg-white transition-all duration-300 flex flex-col items-center text-center"
                   >
                     <img src={item.imageAlt}  alt={item.name} className="text-xs text-gray-400 mt-3 italic rounded-full object-cover"></img>
                     {/* <div className="text-[#1E40AF] mb-4">{item.icon}</div> */}

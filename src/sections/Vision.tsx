@@ -7,7 +7,7 @@ const Vision = () => (
       <ul className="vision-list">
         <li>EVs are the default choice for operators</li>
         <li>NaArNi is THE trusted brand for operators and ecosystem</li>
-        <li>NaArNi has 20% market share in HCVs</li>
+        <li>NaArNi has 20% Market Share </li>
         <li>NaArNi brand stands for reliability and best value</li>
       </ul>
     </div>

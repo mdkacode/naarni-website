@@ -10,7 +10,7 @@ const seoConfig = JSON.parse(fs.readFileSync(path.join(__dirname, '../seo-config
 
 const pageSEOData = {
   '/': {
-    title: 'NaArNi - Electrifying Heavy Commercial Vehicles | Smart EV Solutions',
+    title: 'NaArNi - Electrifying Intercity Buses | Smart EV Solutions',
     description: 'Transform your fleet with NaArNi\'s smart EV solutions. Best-in-class electric buses, financing, charging infrastructure, and maintenance services for fleet operators.',
     keywords: 'electric vehicles, heavy commercial vehicles, EV fleet, electric trucks, electric buses, fleet electrification, EV charging, battery replacement, EV financing, HCV electric vehicles, sustainable transportation, green fleet, electric mobility, NaArNi',
     canonical: 'https://naarni.in',
@@ -24,7 +24,7 @@ const pageSEOData = {
           'name': 'What is NaArNi?',
           'acceptedAnswer': {
             '@type': 'Answer',
-            'text': 'NaArNi is a company focused on electrifying heavy commercial vehicles with smart EV solutions, offering best-in-class products, financing, charging, and maintenance services.'
+            'text': 'NaArNi is a company focused on Electrifying Intercity Buses with smart EV solutions, offering best-in-class products, financing, charging, and maintenance services.'
           }
         },
         {

@@ -34,7 +34,7 @@ const Footer: React.FC = () => {
               NaArNi
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed opacity-90">
-            Empowering cleaner heavy transport with smart EV solutions. Leading the transition to sustainable mobility.
+            Electrifying Intercity buses. Leading the transition to sustainable mobility.
             </p>
             
             {/* Contact info */}

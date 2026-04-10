@@ -1,10 +1,7 @@
 import React from "react";
-import Lottie from "react-lottie-player";
 import StaticSEO from "../seo/StaticSEO";
 // import EVFuture from "../assets/lotties/ev-future.json";
-import Wallet from "../assets/lotties/wallet.json";
-import Maintenance from "../assets/lotties/maintenance.json";
-import Charging from "../assets/lotties/charging.json";
+
 import Battery from "../assets/lotties/battery.json";
 // import CO2 from "../assets/lotties/co2.json";
 // import GreenEnergy from "../assets/lotties/green-energy.json";
@@ -45,32 +42,6 @@ const About: React.FC = () => {
     },
   ];
 
-  const cards = [
-    {
-      title: "Financing",
-      desc: "Access to long-term, cost-effective EV financing for fleet operators.",
-      anim: Wallet,
-      color: "bg-purple-50",
-    },
-    {
-      title: "Maintenance",
-      desc: "High-voltage AMC & full vehicle-life support to ensure reliability.",
-      anim: Maintenance,
-      color: "bg-green-50",
-    },
-    {
-      title: "Charging",
-      desc: "Reliable, fast, and cost-effective charging network support.",
-      anim: Charging,
-      color: "bg-purple-50",
-    },
-    {
-      title: "Battery Assurance",
-      desc: "Guaranteed battery replacement & performance reliability.",
-      anim: Battery,
-      color: "bg-green-50",
-    },
-  ];
 
   // const impactStats = [
   //   { value: "100M+ km", label: "Electric Bus Runs", anim: GreenEnergy },
@@ -139,9 +110,7 @@ const About: React.FC = () => {
                 </span>
               </h1>
               <p className="mt-6 text-center mx-auto max-w-2xl text-[#374151] text-lg leading-relaxed">
-                NaArNi is transforming{" "}
-                <strong>Heavy Commercial Vehicles (HCVs)</strong> with best-in-class
-                electric buses. Our mission is to make{" "}
+                We Design, Sell & Maintain Intercity EV Buses  Our mission is to make{" "}
                 <strong>EVs the default choice for fleet operators</strong> through
                 reliable products, cost-effective financing, maintenance, and charging solutions.
               </p>
@@ -308,23 +277,62 @@ const About: React.FC = () => {
                 Comprehensive solutions that address every aspect of fleet electrification, from financing to maintenance.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {cards.map((item, i) => (
+              
+              </div>
+               <section className="py-20 bg-[#fff]/30">
+        <InView triggerOnce threshold={0.1}>
+          {({ inView, ref }) => (
+            <div
+              ref={ref}
+              className={`transition-all duration-1000 ease-out transform ${
+                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              }`}
+            >
+              <h2 className="text-3xl sm:text-4xl font-bold text-center text-[#1E40AF]">
+                We Design, Sell & Maintain Intercity EV Buses
+              </h2>
+              <p className="text-center mt-2 text-[#111827] max-w-xl mx-auto px-4">
+                NaArNi offers best cost per km, reliability and availability.
+              </p>
+              <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto mt-12 px-4">
+                {[
+                  {
+                    name: "Product",
+                    answer: "Best-in-class range & efficiency with proven reliability.",
+                    imageAlt: "/images/Bus.png",
+                  },
+
+                  {
+                    name: "Maintenance",
+                    answer: "Access to High-Voltage AMC through vehicle life.",
+                    imageAlt: "/images/maintenance.png",
+                  },
+
+                  {
+                    name: "Battery",
+                    // @ts-ignore
+                    icon: <Battery className="w-10 h-10" />,
+                    answer: "Battery Replacement Assurance.",
+                    imageAlt: "/images/battery.png",
+                  },
+                ].map((item, idx) => (
                   <div
-                    key={i}
-                    className="group p-8 rounded-2xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-500 ease-out bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 text-center"
+                    key={idx}
+                    className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[280px] rounded-xl p-6 shadow hover:shadow-xl hover:scale-105 bg-white transition-all duration-300 flex flex-col items-center text-center"
                   >
-                    <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                      <Lottie loop={false} play animationData={item.anim} className="w-12 h-12" />
-                    </div>
-                    <h3 className="text-xl font-bold text-[#1E40AF] mb-4 group-hover:text-blue-600 transition-colors duration-300">
-                      {item.title}
+                    <img src={item.imageAlt}  alt={item.name} className="text-xs text-gray-400 mt-3 italic rounded-full object-cover"></img>
+                    {/* <div className="text-[#1E40AF] mb-4">{item.icon}</div> */}
+                    <h3 className="text-lg font-semibold text-[#1E40AF] mb-2">
+                      {item.name}
                     </h3>
-                    <p className="text-[#374151] text-sm leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </div>
+                    <p className="text-sm text-[#111827]">{item.answer}</p>
+                    </div>
                 ))}
               </div>
+            </div>
+          )}
+        </InView>
+      </section>
             </div>
           )}
         </InView>

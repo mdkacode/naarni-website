@@ -34,7 +34,7 @@ const Offering = () => {
   return (
     <section className="offering" id="Offering">
       <div className="container">
-        <h2>We enable HCV Fleet Operators to move to Electric</h2>
+        <h2>We Design, Sell & Maintain Intercity EV Buses</h2>
         <p className="subtitle">NaArNi offers the best cost per km, reliability and availability</p>
 
         <div className="offer-grid">
